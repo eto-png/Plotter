@@ -1,0 +1,48 @@
+QLabel {
+  color: #FFFFFF;
+  font-family: 'Poppins', sans-serif;
+}
+            
+/* Estilo do Botão (QPushButton) */
+QPushButton {
+  background-color: #070C27;
+  color: #ACABAB;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+}
+            
+/* Efeito ao passar o mouse por cima do botão (Hover) */
+QPushButton:hover {
+  background-color: #b4befe;
+}
+            
+/* Efeito ao clicar no botão */
+QPushButton:pressed {
+  background-color: #74c7ec;
+}
+
+#barraTitulo {
+  background-color: #070C27;
+}
+
+#conteudo {
+  background-color: #222538;
+}
+
+#btnMin {
+  padding-bottom: 10px;
+}
+
+#titulo {
+  font-size: 24px;
+}
+
+#conteudo QLabel {
+  color: #ACABAB;
+}
+
+#linha {
+  background-color: #ACABAB;
+  border-radius: 5px;
+}
