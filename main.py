@@ -39,10 +39,10 @@ class Window(QtWidgets.QWidget):
         self.title_btnMin.setFixedSize(30, 30)
         self.title_btnMin.clicked.connect(self.showMinimized)
 
-        self.title_btnWei = QtWidgets.QPushButton()
-        self.title_btnWei.setIcon(QtGui.QIcon("images/cards.svg"))
-        self.title_btnWei.setFixedSize(30, 30)
-        self.title_btnWei.clicked.connect(self.change_size)
+        self.title_btnWid = QtWidgets.QPushButton()
+        self.title_btnWid.setIcon(QtGui.QIcon("images/cards.svg"))
+        self.title_btnWid.setFixedSize(30, 30)
+        self.title_btnWid.clicked.connect(self.change_size)
 
         self.title_btnClose = QtWidgets.QPushButton()
         self.title_btnClose.setIcon(QtGui.QIcon("images/x.svg"))
@@ -53,7 +53,7 @@ class Window(QtWidgets.QWidget):
         title_layout.addWidget(self.title_label)
         title_layout.addStretch()
         title_layout.addWidget(self.title_btnMin)
-        title_layout.addWidget(self.title_btnWei)
+        title_layout.addWidget(self.title_btnWid)
         title_layout.addWidget(self.title_btnClose)
 
         #Instancia a tela home
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         app.setStyleSheet(f.read())
 
     widget = Window()
-    widget.resize(800, 500)
+    widget.resize(1000, 650)
     widget.show()
 
     sys.exit(app.exec())

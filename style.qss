@@ -47,11 +47,18 @@ QPushButton:pressed {
 }
 
 #labelTitulo {
-  font-size: 55px;
+  font-size: 58px;
   margin-bottom: 2px;
 }
 
 #labelTexto {
-  font-size: 21px;
+  font-size: 22px;
   margin-top: 11px;
+  margin-bottom: 150px;
+}
+
+#btnUpload {
+  background-color: transparent;
+  border: 3px solid #ACABAB;
+  border-radius: 20px;
 }
