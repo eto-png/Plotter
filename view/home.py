@@ -11,18 +11,26 @@ class Home(QtWidgets.QWidget):
         self.setObjectName("conteudo")
 
         layout_home = QtWidgets.QVBoxLayout(self)
+        layout_home.setSpacing(0)
+        layout_home.setContentsMargins(0, 0, 0, 0)
 
         #Criação do "titulo" do home
         label1_home = QtWidgets.QLabel("Bem vindo ao Plotter!")
         label1_home.setAlignment(QtCore.Qt.AlignCenter)
+        label1_home.setObjectName("labelTitulo")
         #Criação da linha
         row = QtWidgets.QWidget()
-        row.setFixedHeight(3)
-        row.setFixedWidth(100)
+        row.setFixedHeight(2)
+        row.setFixedWidth(675)
         row.setObjectName("linha")
         #Criação da instrução
-        label2_home = QtWidgets.QLabel("Arraste sua planilha de vendas aqui ou clique no botão para fazer o upload")
+        label2_home = QtWidgets.QLabel("Arraste sua planilha de vendas aqui ou clique\n no botão para fazer o upload")
         label2_home.setAlignment(QtCore.Qt.AlignCenter)
+        label2_home.setObjectName("labelTexto")
+        label2_home.setWordWrap(True) #ativa quabra de linha
+
+        #Criação do botão de upload de arquivo
+        btnUpload = QtWidgets.QPushButton()
 
         #Adicionando elementos no layout
         layout_home.addStretch()

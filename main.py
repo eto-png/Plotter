@@ -22,7 +22,7 @@ class Window(QtWidgets.QWidget):
 
         #Cria uma "div" para a barra de titulo
         self.title_bar = QtWidgets.QWidget()
-        self.title_bar.setFixedHeight(40)
+        self.title_bar.setFixedHeight(44)
         self.title_bar.setObjectName("barraTitulo")
 
         #Cria o layout da barra de titulo
