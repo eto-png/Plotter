@@ -1,0 +1,1 @@
+# vai ser o arquivo de configuração de caminhos do projeto
