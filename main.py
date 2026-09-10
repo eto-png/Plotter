@@ -2,10 +2,9 @@ import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
-import sys
-import random
-from PySide6 import QtCore, QtWidgets, QtGui
 from view.home import Home
+
+from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 
 class Window(QtWidgets.QWidget):
     def __init__(self):
@@ -35,17 +34,17 @@ class Window(QtWidgets.QWidget):
 
         self.title_btnMin = QtWidgets.QPushButton()
         self.title_btnMin.setObjectName("btnMin")
-        self.title_btnMin.setIcon(QtGui.QIcon("images/window-minimize.svg"))
+        self.title_btnMin.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/window-minimize.svg"))
         self.title_btnMin.setFixedSize(30, 30)
         self.title_btnMin.clicked.connect(self.showMinimized)
 
         self.title_btnWid = QtWidgets.QPushButton()
-        self.title_btnWid.setIcon(QtGui.QIcon("images/cards.svg"))
+        self.title_btnWid.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/cards.svg"))
         self.title_btnWid.setFixedSize(30, 30)
         self.title_btnWid.clicked.connect(self.change_size)
 
         self.title_btnClose = QtWidgets.QPushButton()
-        self.title_btnClose.setIcon(QtGui.QIcon("images/x.svg"))
+        self.title_btnClose.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/x.svg"))
         self.title_btnClose.setFixedSize(30, 30)
         self.title_btnClose.clicked.connect(self.close)
 
@@ -86,10 +85,10 @@ class Window(QtWidgets.QWidget):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    QtGui.QFontDatabase.addApplicationFont("fontes/Poppins-Regular.ttf")
-    QtGui.QFontDatabase.addApplicationFont("fontes/Poppins-Bold.ttf")
+    QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
+    QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
 
-    with open("style.qss", "r") as f:
+    with open(STYLE_PATH, "r") as f:
         app.setStyleSheet(f.read())
 
     widget = Window()
