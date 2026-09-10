@@ -2,6 +2,8 @@ import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from config.paths import IMAGES_DIR
+
 class Home(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -34,7 +36,7 @@ class Home(QtWidgets.QWidget):
         #Criação do botão de upload de arquivo
         btnUpload = QtWidgets.QPushButton()
         btnUpload.setObjectName("btnUpload")
-        btnUpload.setIcon(QtGui.QIcon("images/plus.svg"))
+        btnUpload.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/plus.svg"))
         btnUpload.setIconSize(QtCore.QSize(64, 64))
         btnUpload.setFixedSize(108, 108)
         btnUpload.clicked.connect(self.open_explorer)
