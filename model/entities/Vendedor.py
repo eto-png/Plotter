@@ -1,4 +1,4 @@
-from model.Localidade import Localidade
+from model.entities.Localidade import Localidade
 
 class Vendedor:
     

@@ -1,4 +1,4 @@
-from model.Categoria import Categoria
+from model.entities.Categoria import Categoria
 
 class Produto:
     

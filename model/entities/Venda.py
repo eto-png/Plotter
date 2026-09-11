@@ -1,5 +1,5 @@
-from model.Produtos import Produtos
-from model.Localidade import Localidade
+from model.entities.Produtos import Produtos
+from model.entities.Localidade import Localidade
 
 class Venda:
     def __init__(self, produtos, localidade, dt_venda, qt_parcelas, obs):
