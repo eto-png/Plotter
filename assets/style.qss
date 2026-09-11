@@ -3,22 +3,26 @@ QLabel {
   font-family: 'Poppins', sans-serif;
 }
             
-/* Estilo do Botão (QPushButton) */
-QPushButton {
+#btnMin, #btnWid, #btnClose, #btnMenu {
   background-color: #070C27;
   color: #ACABAB;
-  font-size: 16px;
-  border-radius: 8px;
   border: none;
 }
+
+#btnMenu {
+  border-radius: 8px;
+}
             
-/* Efeito ao passar o mouse por cima do botão */
-QPushButton:hover {
+#btnMin:hover, #btnWid:hover, #btnMenu:hover {
   background-color: #b4befe;
+}
+
+#btnClose:hover {
+  background-color: #b53836;
 }
             
 /* Efeito ao clicar no botão */
-QPushButton:pressed {
+#btnMin:pressed, #btnWid:pressed, #btnClose:pressed {
   background-color: #74c7ec;
 }
 
@@ -61,4 +65,38 @@ QPushButton:pressed {
   background-color: transparent;
   border: 3px solid #ACABAB;
   border-radius: 20px;
+}
+
+#btnUpload:hover {
+  border-color: #636262;
+}
+
+#sidebar {
+  background-color: #801A1C2A;
+}
+
+#btnConfig, #btnHistory {
+  text-align: left;
+  background-color: transparent;
+  color: #FFFFFF;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+#btnConfig:hover, #btnHistory:hover {
+  color: #8C8A8A;
+}
+
+#btnCloseSidebar {
+  background-color: transparent;
+  border-radius: 20px;
+  border: none;
+}
+
+#btnCloseSidebar:hover {
+  background-color: #338C8A8A;
+}
+
+#menuRow {
+  background-color: #807E7E7E;
 }
