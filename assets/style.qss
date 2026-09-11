@@ -39,7 +39,8 @@ QLabel {
 }
 
 #titulo {
-  font-size: 24px;
+  font-size: 22px;
+  margin-left: 12px;
 }
 
 #conteudo QLabel {

@@ -29,28 +29,34 @@ class Window(QtWidgets.QWidget):
         title_layout.setContentsMargins(15, 0, 0, 0)
 
         #Elementos da barra de titulo
-        self.title_label = QtWidgets.QLabel("Plotter")
+        self.logo_label = QtWidgets.QLabel() #Criação da label para ter o logo
+        self.logo_label.setObjectName("logo")
+        pixmap_logo = QtGui.QPixmap(f"{IMAGES_DIR}/logo plotter.png")
+        self.logo_label.setPixmap(pixmap_logo.scaled(35, 35, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+
+        self.title_label = QtWidgets.QLabel("Plotter") #Criação do "titulo"
         self.title_label.setObjectName("titulo")
 
-        self.title_btnMin = QtWidgets.QPushButton()
+        self.title_btnMin = QtWidgets.QPushButton() #Criação do botão de minimizar
         self.title_btnMin.setObjectName("btnMin")
         self.title_btnMin.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/window-minimize.svg"))
         self.title_btnMin.setFixedSize(44, 44)
         self.title_btnMin.clicked.connect(self.showMinimized)
 
-        self.title_btnWid = QtWidgets.QPushButton()
+        self.title_btnWid = QtWidgets.QPushButton() #Criação do botão de redimensionar
         self.title_btnWid.setObjectName("btnWid")
         self.title_btnWid.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/cards.svg"))
         self.title_btnWid.setFixedSize(44, 44)
         self.title_btnWid.clicked.connect(self.change_size)
 
-        self.title_btnClose = QtWidgets.QPushButton()
+        self.title_btnClose = QtWidgets.QPushButton() #Criação do botão de fechar
         self.title_btnClose.setObjectName("btnClose")
         self.title_btnClose.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/x.svg"))
         self.title_btnClose.setFixedSize(44, 44)
         self.title_btnClose.clicked.connect(self.close)
 
         #Adiciona os elementos ao layout da barra
+        title_layout.addWidget(self.logo_label)
         title_layout.addWidget(self.title_label)
         title_layout.addStretch()
         title_layout.addWidget(self.title_btnMin)
@@ -121,7 +127,7 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.move(10, 54)
         self.btnMenu.clicked.connect(self.toggle_menu)
 
-        #Empurra o elemento pra camada mais alta, como o sidebar e o botão menu são elementos flutuantes (não estão em um layout), é necessario empurra-los para frente
+        #Empurra o elemento pra camada mais alta. Como o sidebar e o botão menu são elementos flutuantes (não estão em um layout), é necessario empurra-los para frente
         self.sidebar.raise_()
         self.btnMenu.raise_()
 
@@ -200,8 +206,8 @@ class Window(QtWidgets.QWidget):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
-    QtGui.QFontDatabase.addApplicationFont("fontes/Poppins-Regular.ttf")
-    QtGui.QFontDatabase.addApplicationFont("fontes/Poppins-Bold.ttf")
+    QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
+    QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
 
     with open(STYLE_PATH, "r") as f:
         app.setStyleSheet(f.read())
