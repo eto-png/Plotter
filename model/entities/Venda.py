@@ -2,7 +2,7 @@ from model.entities.produtos import Produtos
 from model.entities.localidade import Localidade
 
 class Venda:
-    def __init__(self, produtos, localidade, dt_venda, qt_parcelas, obs):
+    def __init__(self, produtos : Produtos, localidade : Localidade, dt_venda, qt_parcelas, obs):
         self.produtos = produtos
         self.localidade = localidade
         self.dt_venda = dt_venda
