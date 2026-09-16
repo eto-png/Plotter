@@ -5,3 +5,7 @@ env/
 __pycache__/
 *.pyc
 .vscode/
+
+.tests/
+tests/
+test_*.py
