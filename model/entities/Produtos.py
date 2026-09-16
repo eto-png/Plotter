@@ -1,4 +1,4 @@
-from model.entities.Produto import Produto
+from model.entities.produto import Produto
 
 class Produtos:
     def __init__(self, produto, quantidade, preco, desconto):
