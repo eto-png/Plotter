@@ -11,5 +11,8 @@ STYLE_PATH = ASSETS_DIR / "style.qss"
 CONTROLLER_DIR = ROOT_DIR / "controller"
 
 MODELS_DIR = ROOT_DIR / "model"
+DATABASE_DIR = MODELS_DIR / "database"
+ENTITIES_DIR = MODELS_DIR / "entities"
+SERVICES_DIR = MODELS_DIR / "services"
 
 VIEWS_DIR = ROOT_DIR / "view"
