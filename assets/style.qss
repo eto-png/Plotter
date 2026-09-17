@@ -101,3 +101,49 @@ QLabel {
 #menuRow {
   background-color: #807E7E7E;
 }
+
+#settingsDiv {
+  background-color: #1A1C2A;
+}
+
+#cardSettings {
+  background-color: #222538;
+}
+
+#cardTitle, #cardDesc {
+  font-size: 16px;
+}
+
+#cardDesc {
+  font-weight: bold;
+}
+
+#btnDark, #btnLight, #btnSystem {
+  background-color: transparent;
+  border: 1px solid #D9D9D9;
+  border-radius: 5px;
+  color: #D9D9D9;
+  font-size: 16px;
+}
+
+#btnDark:hover, #btnLight:hover, #btnSystem:hover, #btnDark:checked, #btnLight:checked, #btnSystem:checked {
+  border-color: #62F59F;
+  color: #62F59F;
+}
+
+#borderAnalise {
+  border: 1px solid #62F59F;
+  border-radius: 15px;
+}
+
+#indicatorAnalise {
+  background-color: #62F59F;
+}
+
+QComboBox {
+  background-color: transparent;
+  border: 1px solid #62F59F;
+  border-radius: 5px;
+  color: #D9D9D9;
+  font-size: 14px;
+}
