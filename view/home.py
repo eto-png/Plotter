@@ -53,5 +53,6 @@ class Home(QtWidgets.QWidget):
     def open_explorer(self):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Selecione a planilha", "", "Arquivos de Excel (*.xlsx *.xls)")
 
+        #Só para testar se ta pegando o caminho do arquivo
         if filePath:
             print(f"Arquivo selecionado: {filePath}")

@@ -3,6 +3,7 @@ import random
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from view.home import Home
+from view.settings import Settings
 
 from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 
@@ -68,7 +69,6 @@ class Window(QtWidgets.QWidget):
         
         #Adiciona a barra e o conteudo ao layout principal
         self.main_layout.addWidget(self.title_bar)
-        self.main_layout.addWidget(self.homePage)
 
         #Criação da "div" do menu lateral
         self.sidebar = QtWidgets.QFrame(self)
@@ -106,6 +106,7 @@ class Window(QtWidgets.QWidget):
         self.btnConfig.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/settings.svg"))
         self.btnConfig.setIconSize(QtCore.QSize(23, 23))
         self.btnConfig.setObjectName("btnConfig")
+        self.btnConfig.clicked.connect(lambda: self.change_screen(1))
 
         #Criação da linha que separa as opções do menu lateral
         menuRow = QtWidgets.QWidget()
@@ -126,6 +127,16 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.setFixedSize(50, 45)
         self.btnMenu.move(10, 54)
         self.btnMenu.clicked.connect(self.toggle_menu)
+
+
+        self.stack = QtWidgets.QStackedWidget()
+
+        self.settingsPage = Settings()
+
+        self.stack.addWidget(self.homePage)
+        self.stack.addWidget(self.settingsPage)
+
+        self.main_layout.addWidget(self.stack)
 
         #Empurra o elemento pra camada mais alta. Como o sidebar e o botão menu são elementos flutuantes (não estão em um layout), é necessario empurra-los para frente
         self.sidebar.raise_()
@@ -196,13 +207,26 @@ class Window(QtWidgets.QWidget):
         if not abrir:
             def ao_terminar():
                 self.sidebar.hide()
-                self.btnMenu.show()
-                #Garante que o botão continue no topo e clicável
-                self.btnMenu.raise_()
+
+                if self.stack.currentIndex() != 1:
+                    self.btnMenu.show()
+                    #Garante que o botão continue no topo e clicável
+                    self.btnMenu.raise_()
 
             self.group.finished.connect(ao_terminar)
 
         self.group.start()
+
+    def change_screen(self, indice: int):
+        self.stack.setCurrentIndex(indice)
+
+        if indice == 1:
+            self.sidebar.hide()
+            self.btnMenu.hide()
+        else:
+            self.btnMenu.show()
+            self.btnMenu.raise_()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
