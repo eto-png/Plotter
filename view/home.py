@@ -40,6 +40,7 @@ class Home(QtWidgets.QWidget):
         btnUpload.setIconSize(QtCore.QSize(64, 64))
         btnUpload.setFixedSize(108, 108)
         btnUpload.clicked.connect(self.open_explorer)
+        btnUpload.setCursor(QtCore.Qt.PointingHandCursor)
 
         #Adicionando elementos no layout
         layout_home.addStretch()

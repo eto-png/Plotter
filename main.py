@@ -142,6 +142,10 @@ class Window(QtWidgets.QWidget):
         self.sidebar.raise_()
         self.btnMenu.raise_()
 
+        buttons = [self.title_btnMin, self.title_btnWid, self.title_btnClose, self.btnMenu, self.btnCloseSidebar, self.btnConfig, self.btnHistory]
+        for btn in buttons:
+            btn.setCursor(QtCore.Qt.PointingHandCursor)
+
     #Função para recalcular e reajustar layouts, tamanho e posições de elemntos que não estão em um layout
     def resizeEvent(self, event: QtGui.QResizeEvent):
         super().resizeEvent(event)
@@ -233,7 +237,7 @@ if __name__ == "__main__":
     QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
     QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
 
-    with open(STYLE_PATH, "r") as f:
+    with open(f"{STYLE_PATH}/style.qss", "r") as f:
         app.setStyleSheet(f.read())
 
     widget = Window()
