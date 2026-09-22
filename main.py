@@ -1,5 +1,6 @@
 import sys
 import random
+import darkdetect
 from PySide6 import QtCore, QtWidgets, QtGui
 
 from view.home import Home
@@ -142,9 +143,13 @@ class Window(QtWidgets.QWidget):
         self.sidebar.raise_()
         self.btnMenu.raise_()
 
+        #Faz com que o cursor fique com o dedinho nos botões
         buttons = [self.title_btnMin, self.title_btnWid, self.title_btnClose, self.btnMenu, self.btnCloseSidebar, self.btnConfig, self.btnHistory]
         for btn in buttons:
             btn.setCursor(QtCore.Qt.PointingHandCursor)
+
+        #Recebe o sinal do arquivo "settings" e conecta à função de mundaça de tema
+        self.settingsPage.theme_changed.connect(self.apply_theme)
 
     #Função para recalcular e reajustar layouts, tamanho e posições de elemntos que não estão em um layout
     def resizeEvent(self, event: QtGui.QResizeEvent):
@@ -231,17 +236,32 @@ class Window(QtWidgets.QWidget):
             self.btnMenu.show()
             self.btnMenu.raise_()
 
+    #Função para mudar o tema do aplicativo
+    def apply_theme(self, theme: str):
+        app = QtWidgets.QApplication.instance()
+
+        if theme == "system":
+            theme = "dark" if darkdetect.isDark() else "light"
+
+        theme_name = (f"{STYLE_PATH}/dark.qss" if theme == "dark" else f"{STYLE_PATH}/light.qss")
+
+        with open(f"{STYLE_PATH}/style.qss", "r") as f:
+            base_style = f.read()
+        with open(theme_name, "r") as f:
+            theme_style = f.read()
+
+        #Concatenação dos arquivos .qss
+        app.setStyleSheet(base_style + "\n" + theme_style)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
     QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
 
-    with open(f"{STYLE_PATH}/style.qss", "r") as f:
-        app.setStyleSheet(f.read())
-
     widget = Window()
     widget.resize(1000, 650)
     widget.show()
+
+    widget.apply_theme("dark")
 
     sys.exit(app.exec())

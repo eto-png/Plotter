@@ -5,6 +5,9 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from config.paths import IMAGES_DIR
 
 class Settings(QtWidgets.QWidget):
+    #Cria um sinal
+    theme_changed = QtCore.Signal(str)
+
     def __init__(self):
         super().__init__()
 
@@ -44,6 +47,11 @@ class Settings(QtWidgets.QWidget):
         btnLight.setObjectName("btnLight")
         btnSystem = QtWidgets.QPushButton("Sistema")
         btnSystem.setObjectName("btnSystem")
+
+        #Faz os cliques enviarem um sinal com seu nome
+        btnDark.clicked.connect(lambda: self.theme_changed.emit("dark"))
+        btnLight.clicked.connect(lambda: self.theme_changed.emit("light"))
+        btnSystem.clicked.connect(lambda: self.theme_changed.emit("system"))
 
         btnDark.setCheckable(True) #Permite os botões serem checaveis
         btnLight.setCheckable(True)
