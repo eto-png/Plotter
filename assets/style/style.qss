@@ -1,6 +1,9 @@
 QLabel {
-  color: #FFFFFF;
   font-family: 'Poppins', sans-serif;
+}
+
+#titulo {
+  color: #FFFFFF;
 }
             
 #btnMin, #btnWid, #btnClose, #btnMenu {
@@ -120,6 +123,7 @@ QLabel {
   border-radius: 5px;
   color: #D9D9D9;
   font-size: 16px;
+  padding: 8px;
 }
 
 #btnDark:hover, #btnLight:hover, #btnSystem:hover, #btnDark:checked, #btnLight:checked, #btnSystem:checked {
@@ -142,4 +146,34 @@ QComboBox {
   border-radius: 5px;
   color: #D9D9D9;
   font-size: 14px;
+  padding: 10px;
+}
+
+#settingsTitle {
+  font-size: 24px;
+}
+
+QLabel#settingsTitle {
+  color: #D9D9D9;
+}
+
+#btnComma, #btnPoint {
+  background-color: transparent;
+  border: 1px solid #62F59F;
+  color: #FFFFFF;
+  font-size: 16px;
+  border-radius: 10px;
+  padding: 8px;
+}
+
+#btnComma:hover, #btnPoint:hover, #btnComma:checked, #btnPoint:checked {
+  background-color: #62F59F;
+  color: #000000;
+}
+
+#btnBack {
+  background-color: #62F59F;
+  color: #000000;
+  font-size: 14px;
+  border-radius: 20px;
 }

@@ -1,6 +1,7 @@
 import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
+from view.components.switch import SwitchToggle
 
 from config.paths import IMAGES_DIR
 
@@ -31,7 +32,7 @@ class Settings(QtWidgets.QWidget):
 
         #Cria o layout da div
         layout_container = QtWidgets.QVBoxLayout(settings_container)
-        layout_container.setContentsMargins(30, 30, 30, 30)
+        layout_container.setContentsMargins(30, 30, 30, 15)
         layout_container.setSpacing(20)
 
         #Cria o layout de cada linha da div
@@ -128,7 +129,7 @@ class Settings(QtWidgets.QWidget):
         combo_language.setCurrentText("Português (Brasil)")
 
         layout_linguagem.addWidget(combo_language)
-        row2.addWidget(card_linguagem)
+        row2.addWidget(card_linguagem) #Adiciona o card na linha 2
 
 
         #Criação do card "Data"
@@ -140,17 +141,65 @@ class Settings(QtWidgets.QWidget):
         combo_data.setCurrentText("DD/MM/AAAA")
         
         layout_data.addWidget(combo_data)
-        row2.addWidget(card_data)
+        row2.addWidget(card_data) #Adiciona o card na linha 2
+
+
+        #Criação do card "Resumo"
+        card_resumo, layout_resumo = self.new_card(f"{IMAGES_DIR}/summary.svg", "Resumo", "Gerar resumo textual")
+
+        #Instancia o switch toggle
+        switch_resumo = SwitchToggle()
+        switch_resumo.setChecked(False)  #Começa desligado
+
+        layout_resumo.addWidget(switch_resumo)
+        layout_resumo.addStretch()
+
+        row3.addWidget(card_resumo)
+
+
+        #Criação do card "Separador"
+        card_separador, layout_separador = self.new_card(f"{IMAGES_DIR}/file.svg", "Separador", "Separador decimal")
+
+        btnComma = QtWidgets.QPushButton("Vírgula (,)") #Cria os botões
+        btnComma.setObjectName("btnComma")
+        btnPoint = QtWidgets.QPushButton("Ponto (.)")
+        btnPoint.setObjectName("btnPoint")
+
+        btnComma.setCheckable(True) #Torna os botões checaveis
+        btnPoint.setCheckable(True)
+
+        group_separador = QtWidgets.QButtonGroup(self) #Cria o grupo dos botões
+        group_separador.setExclusive(True) #Habilita a exclusividade de check nos botões do grupo
+
+        group_separador.addButton(btnComma) #Adiciona os botões no grupo
+        group_separador.addButton(btnPoint)
+
+        btnComma.setChecked(True) #Faz o botão de virgula estar checado por padrao
+
+        layout_btn_separador = QtWidgets.QHBoxLayout() #Cria o layout para os botões
+        layout_btn_separador.addWidget(btnComma) #Adiciona os botões ao layout
+        layout_btn_separador.addWidget(btnPoint)
+
+        layout_separador.addLayout(layout_btn_separador) #Adiciona o layout dos botões no layout do card
+        row3.addWidget(card_separador) #Adiciona o card na linha 3
+
+
+        btnBack = QtWidgets.QPushButton("Voltar")
+        btnBack.setFixedSize(100, 40)
+        btnBack.setObjectName("btnBack")
+
 
         layout_container.addLayout(row1) #Adiciona a primeira linha ao layout da div
-        layout_container.addLayout(row2)
+        layout_container.addLayout(row2) #Adiciona a segunda linha ao layout da div
+        layout_container.addLayout(row3) #Adiciona a terceira linha ao layout da div
+        layout_container.addWidget(btnBack, alignment= QtCore.Qt.AlignCenter)
 
         #Adiciona os elementos ao layout principal
         layout_settings.addWidget(label_title)
         layout_settings.addWidget(settings_container)
         layout_settings.addStretch()
 
-        buttons = [btnDark, btnLight, btnSystem, btnFast, btnStandard, btnDetailed, combo_language]
+        buttons = [btnDark, btnLight, btnSystem, btnFast, btnStandard, btnDetailed, combo_language, combo_data, btnComma, btnPoint]
         for btn in buttons:
             btn.setCursor(QtCore.Qt.PointingHandCursor)
 
