@@ -12,6 +12,9 @@ class Window(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        #Instancia o QSettings
+        self.settings = QtCore.QSettings("TCC", "Plotter")
+
         #Esconde a barra de título e cria uma variavel pra armazenar a posição do mouse
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.old_pos = None
@@ -150,6 +153,10 @@ class Window(QtWidgets.QWidget):
 
         #Recebe o sinal do arquivo "settings" e conecta à função de mundaça de tema
         self.settingsPage.theme_changed.connect(self.apply_theme)
+        #Recebe o sinal do "settings" e conecta à função de mudar idioma
+        self.settingsPage.language_changed.connect(self.on_language_change)
+
+        self.load_initial_language()
 
     #Função para recalcular e reajustar layouts, tamanho e posições de elemntos que não estão em um layout
     def resizeEvent(self, event: QtGui.QResizeEvent):
@@ -252,6 +259,17 @@ class Window(QtWidgets.QWidget):
 
         #Concatenação dos arquivos .qss
         app.setStyleSheet(base_style + "\n" + theme_style)
+
+    def load_initial_language(self):
+        saved_lang = self.settings.value("language", "pt_BR")
+        self.apply_language(saved_lang)
+
+    def on_language_change(self, lang_code: str):
+        self.settings.setValue("language", lang_code)
+        self.apply_language(lang_code)
+
+    def apply_language(self, lang_code: str):
+        self.settingsPage.retranslate(lang_code)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
