@@ -10,6 +10,7 @@ class Settings(QtWidgets.QWidget):
     #Cria um sinal
     theme_changed = QtCore.Signal(str)
     language_changed = QtCore.Signal(str)
+    back = QtCore.Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -199,6 +200,7 @@ class Settings(QtWidgets.QWidget):
         self.btnBack = QtWidgets.QPushButton()
         self.btnBack.setFixedSize(100, 40)
         self.btnBack.setObjectName("btnBack")
+        self.btnBack.clicked.connect(lambda: self.back.emit(0))
 
 
         layout_container.addLayout(row1) #Adiciona a primeira linha ao layout da div
@@ -211,7 +213,7 @@ class Settings(QtWidgets.QWidget):
         layout_settings.addWidget(settings_container)
         layout_settings.addStretch()
 
-        buttons = [self.btnDark, self.btnLight, self.btnSystem, self.btnFast, self.btnStandard, self.btnDetailed, self.combo_language, self.combo_data, self.btnComma, self.btnPoint]
+        buttons = [self.btnDark, self.btnLight, self.btnSystem, self.btnFast, self.btnStandard, self.btnDetailed, self.combo_language, self.combo_data, self.btnComma, self.btnPoint, self.btnBack]
         for btn in buttons:
             btn.setCursor(QtCore.Qt.PointingHandCursor)
 

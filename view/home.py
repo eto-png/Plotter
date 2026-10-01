@@ -1,6 +1,7 @@
 import sys
 import random
 from PySide6 import QtCore, QtWidgets, QtGui
+from config.locales import languages
 
 from config.paths import IMAGES_DIR
 
@@ -17,9 +18,9 @@ class Home(QtWidgets.QWidget):
         layout_home.setContentsMargins(0, 0, 0, 0)
 
         #Criação do "titulo" do home
-        label1_home = QtWidgets.QLabel("Bem vindo ao Plotter!")
-        label1_home.setAlignment(QtCore.Qt.AlignCenter)
-        label1_home.setObjectName("labelTitulo")
+        self.label1_home = QtWidgets.QLabel("Bem vindo ao Plotter!")
+        self.label1_home.setAlignment(QtCore.Qt.AlignCenter)
+        self.label1_home.setObjectName("labelTitulo")
 
         #Criação da linha
         row = QtWidgets.QWidget()
@@ -28,26 +29,26 @@ class Home(QtWidgets.QWidget):
         row.setObjectName("linha")
 
         #Criação da instrução
-        label2_home = QtWidgets.QLabel("Arraste sua planilha de vendas aqui ou clique\n no botão para fazer o upload")
-        label2_home.setAlignment(QtCore.Qt.AlignCenter)
-        label2_home.setObjectName("labelTexto")
-        label2_home.setWordWrap(True) #ativa quabra de linha
+        self.label2_home = QtWidgets.QLabel("Arraste sua planilha de vendas aqui ou clique\n no botão para fazer o upload")
+        self.label2_home.setAlignment(QtCore.Qt.AlignCenter)
+        self.label2_home.setObjectName("labelTexto")
+        self.label2_home.setWordWrap(True) #ativa quabra de linha
 
         #Criação do botão de upload de arquivo
-        btnUpload = QtWidgets.QPushButton()
-        btnUpload.setObjectName("btnUpload")
-        btnUpload.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/plus.svg"))
-        btnUpload.setIconSize(QtCore.QSize(64, 64))
-        btnUpload.setFixedSize(108, 108)
-        btnUpload.clicked.connect(self.open_explorer)
-        btnUpload.setCursor(QtCore.Qt.PointingHandCursor)
+        self.btnUpload = QtWidgets.QPushButton()
+        self.btnUpload.setObjectName("btnUpload")
+        self.btnUpload.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/plus.svg"))
+        self.btnUpload.setIconSize(QtCore.QSize(64, 64))
+        self.btnUpload.setFixedSize(108, 108)
+        self.btnUpload.clicked.connect(self.open_explorer)
+        self.btnUpload.setCursor(QtCore.Qt.PointingHandCursor)
 
         #Adicionando elementos no layout
         layout_home.addStretch()
-        layout_home.addWidget(label1_home)
+        layout_home.addWidget(self.label1_home)
         layout_home.addWidget(row, alignment= QtCore.Qt.AlignCenter)
-        layout_home.addWidget(label2_home)
-        layout_home.addWidget(btnUpload, alignment= QtCore.Qt.AlignCenter)
+        layout_home.addWidget(self.label2_home)
+        layout_home.addWidget(self.btnUpload, alignment= QtCore.Qt.AlignCenter)
         layout_home.addStretch()
 
     #Função para abrir o explorador de arquivos e selecionar o arquivo.
@@ -57,3 +58,9 @@ class Home(QtWidgets.QWidget):
         #Só para testar se ta pegando o caminho do arquivo
         if filePath:
             print(f"Arquivo selecionado: {filePath}")
+
+    def retranslate(self, lang_code: str):
+        texts = languages.get(lang_code, languages["pt_BR"])
+
+        self.label1_home.setText(texts["home_title"])
+        self.label2_home.setText(texts["home_txt"])

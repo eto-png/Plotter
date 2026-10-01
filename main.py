@@ -3,6 +3,7 @@ import random
 import darkdetect
 from PySide6 import QtCore, QtWidgets, QtGui
 
+from config.locales import languages
 from view.home import Home
 from view.settings import Settings
 
@@ -155,16 +156,19 @@ class Window(QtWidgets.QWidget):
         self.settingsPage.theme_changed.connect(self.apply_theme)
         #Recebe o sinal do "settings" e conecta à função de mudar idioma
         self.settingsPage.language_changed.connect(self.on_language_change)
+        #Recebe o sinal do "settings" para mudar a tela de volta à home
+        self.settingsPage.back.connect(self.change_screen)
 
         self.load_initial_language()
 
-    #Função para recalcular e reajustar layouts, tamanho e posições de elemntos que não estão em um layout
+
+    #Função para recalcular e reajustar layouts, tamanho e posições de elementos que não estão em um layout
     def resizeEvent(self, event: QtGui.QResizeEvent):
         super().resizeEvent(event)
         if hasattr(self, "sidebar"):
             self.sidebar.setFixedHeight(self.height() - 44)
 
-    #Função para restaurar o tamanho da janela
+    #Função para mudar o tamanho da janela
     def change_size(self):
       if self.isMaximized():
         self.showNormal()
@@ -260,6 +264,7 @@ class Window(QtWidgets.QWidget):
         #Concatenação dos arquivos .qss
         app.setStyleSheet(base_style + "\n" + theme_style)
 
+    #Funções para alterar o idioma do aplicativo
     def load_initial_language(self):
         saved_lang = self.settings.value("language", "pt_BR")
         self.apply_language(saved_lang)
@@ -270,6 +275,11 @@ class Window(QtWidgets.QWidget):
 
     def apply_language(self, lang_code: str):
         self.settingsPage.retranslate(lang_code)
+        self.homePage.retranslate(lang_code)
+
+        texts = languages.get(lang_code, languages["pt_BR"])
+        self.btnHistory.setText(texts["menu_dashboard"])
+        self.btnConfig.setText(texts["menu_settings"])
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
