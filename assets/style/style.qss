@@ -4,6 +4,8 @@ QLabel {
 
 #titulo {
   color: #FFFFFF;
+  font-size: 22px;
+  margin-left: 12px;
 }
             
 #btnMin, #btnWid, #btnClose, #btnMenu {
@@ -23,8 +25,7 @@ QLabel {
 #btnClose:hover {
   background-color: #b53836;
 }
-            
-/* Efeito ao clicar no botão */
+
 #btnMin:pressed, #btnWid:pressed, #btnClose:pressed {
   background-color: #74c7ec;
 }
@@ -37,10 +38,6 @@ QLabel {
   padding-bottom: 10px;
 }
 
-#titulo {
-  font-size: 22px;
-  margin-left: 12px;
-}
 
 #conteudo QLabel {
   color: #ACABAB;

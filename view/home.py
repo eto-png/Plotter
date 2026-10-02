@@ -27,6 +27,7 @@ class Home(QtWidgets.QWidget):
         row.setFixedHeight(2)
         row.setFixedWidth(705)
         row.setObjectName("linha")
+        
 
         #Criação da instrução
         self.label2_home = QtWidgets.QLabel("Arraste sua planilha de vendas aqui ou clique\n no botão para fazer o upload")
@@ -59,6 +60,7 @@ class Home(QtWidgets.QWidget):
         if filePath:
             print(f"Arquivo selecionado: {filePath}")
 
+    #Função para alterar os textos de acordo com o idioma escolhido
     def retranslate(self, lang_code: str):
         texts = languages.get(lang_code, languages["pt_BR"])
 

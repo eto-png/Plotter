@@ -254,10 +254,12 @@ class Settings(QtWidgets.QWidget):
 
         return card, layout_card
 
+    #Função que emite o sinal para a main
     def _language_combo_changed(self, text: str):
         lang_code = self.lang_map.get(text, "pt_BR")
         self.language_changed.emit(lang_code)
 
+    #Função para fazer a mudança dos textos de acordo com o idioma escolhido
     def retranslate(self, lang_code: str):
         texts = languages.get(lang_code, languages["pt_BR"])
 

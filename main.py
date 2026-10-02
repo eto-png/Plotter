@@ -168,12 +168,34 @@ class Window(QtWidgets.QWidget):
         if hasattr(self, "sidebar"):
             self.sidebar.setFixedHeight(self.height() - 44)
 
+        self.update_qss()
+
     #Função para mudar o tamanho da janela
     def change_size(self):
       if self.isMaximized():
         self.showNormal()
       else:
         self.showMaximized()
+
+    #Função para atualizar o qss de acordo com o tamanho da tela
+    def update_qss(self):
+        mode = "maximized" if self.isMaximized() else "normal"
+        self.setProperty("mode", mode)
+    
+        app = QtWidgets.QApplication.instance()
+        if app:
+            app.style().unpolish(app)
+            app.style().polish(app)
+
+        for child in self.findChildren(QtWidgets.QWidget):
+            child.style().unpolish(child)
+            child.style().polish(child)
+
+        if hasattr(self, "stack") and self.stack.currentWidget():
+            layout = self.stack.currentWidget().layout()
+            if layout:
+                layout.invalidate()
+                layout.activate()
 
     #Funções para conseguir arrastar a tela
     def mousePressEvent(self, event: QtGui.QMouseEvent):
