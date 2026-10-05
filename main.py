@@ -91,7 +91,7 @@ class Window(QtWidgets.QWidget):
 
         #Criação do botão de fechar o menu lateral
         self.btnCloseSidebar = QtWidgets.QPushButton()
-        self.btnCloseSidebar.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/x.svg"))
+        self.btnCloseSidebar.setIcon(QtGui.QIcon())
         self.btnCloseSidebar.setObjectName("btnCloseSidebar")
         self.btnCloseSidebar.setFixedSize(30, 30)
         self.btnCloseSidebar.clicked.connect(self.toggle_menu)
@@ -102,13 +102,13 @@ class Window(QtWidgets.QWidget):
 
         #Criação do botão "Outros dashboards"
         self.btnHistory = QtWidgets.QPushButton("Outros dashboards")
-        self.btnHistory.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/dashboard.svg"))
+        self.btnHistory.setIcon(QtGui.QIcon())
         self.btnHistory.setIconSize(QtCore.QSize(23, 23))
         self.btnHistory.setObjectName("btnHistory")
 
         #Criação do botão "Configurações"
         self.btnConfig = QtWidgets.QPushButton("Configurações")
-        self.btnConfig.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/settings.svg"))
+        self.btnConfig.setIcon(QtGui.QIcon())
         self.btnConfig.setIconSize(QtCore.QSize(23, 23))
         self.btnConfig.setObjectName("btnConfig")
         self.btnConfig.clicked.connect(lambda: self.change_screen(1))

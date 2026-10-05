@@ -1,3 +1,129 @@
+/*Estilos globais*/
 #conteudo {
   background-color: #222538;
+}
+
+#conteudo QLabel {
+  color: #ACABAB;
+}
+
+/*Estilos da sidebar*/
+#btnConfig, #btnHistory {
+  color: #FFFFFF;
+}
+
+#btnConfig:hover, #btnHistory:hover {
+  color: #8C8A8A;
+}
+
+#sidebar {
+  background-color: #801A1C2A;
+}
+
+#menuRow {
+  background-color: #807E7E7E;
+}
+
+#btnCloseSidebar {
+  qproperty-icon: url("assets/images/x.svg")
+}
+
+#btnHistory {
+  qproperty-icon: url("assets/images/dashboard.svg")
+}
+
+#btnConfig {
+  qproperty-icon: url("assets/images/settings.svg")
+}
+
+/*Estilos da home*/
+#linha {
+  background-color: #D9D9D9;
+}
+
+#btnUpload {
+  border: 3px solid #ACABAB;
+  qproperty-icon: url("assets/images/plus.svg")
+}
+
+
+#btnUpload:hover {
+  border-color: #636262;
+}
+
+/*Estilos da settings*/
+QLabel#settingsTitle {
+  color: #D9D9D9;
+}
+
+#settingsDiv {
+  background-color: #1A1C2A;
+}
+
+#cardSettings {
+  background-color: #222538;
+}
+
+QLabel#cardIcon_theme_title {
+  qproperty-pixmap: url("assets/images/dark/paint-brush.svg")
+}
+
+QLabel#cardIcon_analysis_title {
+  qproperty-pixmap: url("assets/images/dark/brain-circuit.svg")
+}
+
+QLabel#cardIcon_language_title {
+  qproperty-pixmap: url("assets/images/dark/translate.svg")
+}
+
+QLabel#cardIcon_date_title {
+  qproperty-pixmap: url("assets/images/dark/calendar.svg")
+}
+
+QLabel#cardIcon_summary_title {
+  qproperty-pixmap: url("assets/images/dark/summary.svg")
+}
+
+QLabel#cardIcon_separator_title {
+  qproperty-pixmap: url("assets/images/dark/file.svg")
+}
+
+#btnDark, #btnLight, #btnSystem {
+  border: 1px solid #D9D9D9;
+  color: #D9D9D9;
+}
+
+#btnDark:hover, #btnLight:hover, #btnSystem:hover, #btnDark:checked, #btnLight:checked, #btnSystem:checked {
+  border-color: #62F59F;
+  background-color: #62F59F;
+  color: #000000;
+}
+
+Window[mode="maximized"] #btnDark:hover, Window[mode="maximized"] #btnLight:hover, Window[mode="maximized"] #btnSystem:hover, Window[mode="maximized"] #btnDark:checked, Window[mode="maximized"] #btnLight:checked, Window[mode="maximized"] #btnSystem:checked {
+  border-color: #62F59F;
+  background-color: #62F59F;
+  color: #000000;
+}
+
+#btnFast, #btnStandard, #btnDetailed {
+  color: #FFFFFF;
+}
+
+#borderAnalise {
+  border: 1px solid #62F59F;
+}
+
+QComboBox {
+  border: 1px solid #62F59F;
+  color: #D9D9D9;
+}
+
+#btnComma, #btnPoint {
+  border: 1px solid #62F59F;
+  color: #FFFFFF;
+}
+
+#btnComma:hover, #btnPoint:hover, #btnComma:checked, #btnPoint:checked, #btnBack {
+  background-color: #62F59F;
+  color: #000000;
 }

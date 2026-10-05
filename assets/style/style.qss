@@ -1,7 +1,9 @@
+/*Estilos globais*/
 QLabel {
   font-family: 'Poppins', sans-serif;
 }
 
+/*Estilos da barra de titulo*/
 #titulo {
   color: #FFFFFF;
   font-size: 22px;
@@ -38,15 +40,24 @@ QLabel {
   padding-bottom: 10px;
 }
 
-
-#conteudo QLabel {
-  color: #ACABAB;
+/*Estilos da sidebar*/
+#btnConfig, #btnHistory {
+  text-align: left;
+  background-color: transparent;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
 }
 
-#linha {
-  background-color: #D9D9D9;
+#btnCloseSidebar {
+  border-radius: 20px;
+  border: none;
 }
 
+#btnCloseSidebar:hover {
+  background-color: #338C8A8A;
+}
+
+/*Estilos da home*/
 #labelTitulo {
   font-size: 58px;
   margin-bottom: 2px;
@@ -59,79 +70,77 @@ QLabel {
 }
 
 #btnUpload {
-  background-color: transparent;
-  border: 3px solid #ACABAB;
   border-radius: 20px;
 }
 
-#btnUpload:hover {
-  border-color: #636262;
+/*Estilo do settings*/
+#settingsTitle {
+  font-size: 24px;
+  padding: 6px 0 6px 0;
 }
 
-#sidebar {
-  background-color: #801A1C2A;
+Window[mode="maximized"] #settingsTitle {
+  font-size: 28px;
 }
 
-#btnConfig, #btnHistory {
-  text-align: left;
-  background-color: transparent;
-  color: #FFFFFF;
-  font-family: 'Poppins', sans-serif;
+#cardTitle {
   font-size: 14px;
 }
 
-#btnConfig:hover, #btnHistory:hover {
-  color: #8C8A8A;
-}
-
-#btnCloseSidebar {
-  background-color: transparent;
-  border-radius: 20px;
-  border: none;
-}
-
-#btnCloseSidebar:hover {
-  background-color: #338C8A8A;
-}
-
-#menuRow {
-  background-color: #807E7E7E;
-}
-
-#settingsDiv {
-  background-color: #1A1C2A;
-}
-
-#cardSettings {
-  background-color: #222538;
-}
-
-#cardTitle, #cardDesc {
+Window[mode="maximized"] #cardTitle {
   font-size: 16px;
 }
 
 #cardDesc {
   font-weight: bold;
+  font-size:14px;
+}
+
+Window[mode="maximized"] #cardDesc {
+  font-size: 16px;
 }
 
 #btnDark, #btnLight, #btnSystem {
-  background-color: transparent;
-  border: 1px solid #D9D9D9;
+  padding: 6px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+Window[mode="maximized"] #btnDark, Window[mode="maximized"] #btnLight, Window[mode="maximized"] #btnSystem {
   border-radius: 5px;
-  color: #D9D9D9;
   font-size: 16px;
   padding: 8px;
 }
 
-#btnDark:hover, #btnLight:hover, #btnSystem:hover, #btnDark:checked, #btnLight:checked, #btnSystem:checked {
-  border-color: #62F59F;
-  color: #62F59F;
+#btnFast, #btnStandard, #btnDetailed {
+  font-size: 12px;
+  padding: 6px 0px 6px 0px;
+  background-color: transparent;
+}
+
+#btnFast {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+#btnDetailed {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+Window[mode="maximized"] #btnFast, Window[mode="maximized"] #btnStandard, Window[mode="maximized"] #btnDetailed {
+  font-size: 16px;
 }
 
 #borderAnalise {
-  border: 1px solid #62F59F;
+  border-radius: 12px;
+}
+
+Window[mode="maximized"] #borderAnalise {
   border-radius: 15px;
 }
+
+#borderAnalise
 
 #indicatorAnalise {
   background-color: #62F59F;
@@ -139,38 +148,28 @@ QLabel {
 
 QComboBox {
   background-color: transparent;
-  border: 1px solid #62F59F;
   border-radius: 5px;
-  color: #D9D9D9;
   font-size: 14px;
-  padding: 10px;
-}
-
-#settingsTitle {
-  font-size: 24px;
-}
-
-QLabel#settingsTitle {
-  color: #D9D9D9;
-}
-
-#btnComma, #btnPoint {
-  background-color: transparent;
-  border: 1px solid #62F59F;
-  color: #FFFFFF;
-  font-size: 16px;
-  border-radius: 10px;
   padding: 8px;
 }
 
-#btnComma:hover, #btnPoint:hover, #btnComma:checked, #btnPoint:checked {
-  background-color: #62F59F;
-  color: #000000;
+#btnComma, #btnPoint {
+  font-size: 12px;
+  border-radius: 15px;
+  padding: 6px;
+}
+
+Window[mode="maximized"] #btnComma, Window[mode="maximized"] #btnPoint {
+  font-size: 16px;
+  padding: 8px;
 }
 
 #btnBack {
-  background-color: #62F59F;
-  color: #000000;
   font-size: 14px;
-  border-radius: 20px;
+  border-radius: 17px;
+}
+
+#settingsDiv {
+  margin-left: 150px;
+  margin-right: 150px;
 }

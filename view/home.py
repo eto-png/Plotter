@@ -38,7 +38,7 @@ class Home(QtWidgets.QWidget):
         #Criação do botão de upload de arquivo
         self.btnUpload = QtWidgets.QPushButton()
         self.btnUpload.setObjectName("btnUpload")
-        self.btnUpload.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/plus.svg"))
+        self.btnUpload.setIcon(QtGui.QIcon())
         self.btnUpload.setIconSize(QtCore.QSize(64, 64))
         self.btnUpload.setFixedSize(108, 108)
         self.btnUpload.clicked.connect(self.open_explorer)

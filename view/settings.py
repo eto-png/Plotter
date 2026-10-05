@@ -35,7 +35,7 @@ class Settings(QtWidgets.QWidget):
 
         #Cria o layout da div
         layout_container = QtWidgets.QVBoxLayout(settings_container)
-        layout_container.setContentsMargins(30, 30, 30, 15)
+        layout_container.setContentsMargins(40, 30, 40, 15)
         layout_container.setSpacing(20)
 
         #Cria o layout de cada linha da div
@@ -100,8 +100,11 @@ class Settings(QtWidgets.QWidget):
         layout_container_analise.addWidget(border_analise) #Adiciona o frame de borda ao layout do container
 
         self.btnFast = QtWidgets.QPushButton() #Criação dos botões do card "Analise"
+        self.btnFast.setObjectName("btnFast")
         self.btnStandard = QtWidgets.QPushButton()
+        self.btnStandard.setObjectName("btnStandard")
         self.btnDetailed = QtWidgets.QPushButton()
+        self.btnDetailed.setObjectName("btnDetailed")
 
         self.btnFast.setCheckable(True) #Permite os botões serem checaveis
         self.btnStandard.setCheckable(True)
@@ -117,6 +120,7 @@ class Settings(QtWidgets.QWidget):
         self.btnStandard.setChecked(True) #Faz o botão "Padrão" ser o ativado por padrão
 
         layout_btn_analise = QtWidgets.QHBoxLayout(border_analise) #Criação do layout horizontal para os botões
+        layout_btn_analise.setContentsMargins(0, 0, 0, 0)
         layout_btn_analise.addWidget(self.btnFast) #Adiciona os botões ao layout criado acima
         layout_btn_analise.addWidget(self.btnStandard)
         layout_btn_analise.addWidget(self.btnDetailed)
@@ -198,7 +202,7 @@ class Settings(QtWidgets.QWidget):
 
 
         self.btnBack = QtWidgets.QPushButton()
-        self.btnBack.setFixedSize(100, 40)
+        self.btnBack.setFixedSize(120, 35)
         self.btnBack.setObjectName("btnBack")
         self.btnBack.clicked.connect(lambda: self.back.emit(0))
 
@@ -230,7 +234,9 @@ class Settings(QtWidgets.QWidget):
         layout_header.setSpacing(10)
 
         card_icon = QtWidgets.QLabel()
-        card_icon.setPixmap(QtGui.QPixmap(icon_path).scaled(20, 20, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        card_icon.setObjectName(f"cardIcon_{title}")
+        card_icon.setFixedSize(20, 20)  # Trava o tamanho físico da label em 20x20
+        card_icon.setScaledContents(True)
 
         card_title = QtWidgets.QLabel()
         card_title.setObjectName("cardTitle")
