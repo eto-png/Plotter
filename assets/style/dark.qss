@@ -118,6 +118,13 @@ QComboBox {
   color: #D9D9D9;
 }
 
+SwitchToggle {
+  qproperty-bgOff: #2A313D;
+  qproperty-bgOn: #62F59F;
+  qproperty-textOff: #8A99AD;
+  qproperty-textOn: #62F59F;
+}
+
 #btnComma, #btnPoint {
   border: 1px solid #62F59F;
   color: #FFFFFF;

@@ -6,6 +6,14 @@ class SwitchToggle(QtWidgets.QCheckBox):
         self.setCursor(QtCore.Qt.PointingHandCursor)
         self.setFixedSize(120, 30)  #Espaço para o switch + texto "Ativo"
 
+        #Cores padrão
+        self._bg_off = QtGui.QColor("#2A313D")
+        self._bg_on = QtGui.QColor("#62F59F")
+        self._border_off = QtGui.QColor("#455060")
+        self._border_on = QtGui.QColor("#62F59F")
+        self._text_off = QtGui.QColor("#8A99AD")
+        self._text_on = QtGui.QColor("#62F59F")
+
         #Animação do deslocamento da bolinha branca
         self._circle_position = 3  #Posição inicial (desligado)
         self.anim = QtCore.QPropertyAnimation(self, b"circle_position", self)
@@ -13,6 +21,43 @@ class SwitchToggle(QtWidgets.QCheckBox):
         self.anim.setEasingCurve(QtCore.QEasingCurve.OutCubic)
 
         self.stateChanged.connect(self.start_transition)
+
+    #Definição de propriedades customizadas do Qt para que o SwitchToggle consiga conversar com o qss
+    @QtCore.Property(QtGui.QColor)
+    def bgOff(self):
+        return self._bg_off
+
+    @bgOff.setter
+    def bgOff(self, color):
+        self._bg_off = QtGui.QColor(color)
+        self.update()
+
+    @QtCore.Property(QtGui.QColor)
+    def bgOn(self):
+        return self._bg_on
+
+    @bgOn.setter
+    def bgOn(self, color):
+        self._bg_on = QtGui.QColor(color)
+        self.update()
+
+    @QtCore.Property(QtGui.QColor)
+    def textOff(self):
+        return self._text_off
+
+    @textOff.setter
+    def textOff(self, color):
+        self._text_off = QtGui.QColor(color)
+        self.update()
+
+    @QtCore.Property(QtGui.QColor)
+    def textOn(self):
+        return self._text_on
+
+    @textOn.setter
+    def textOn(self, color):
+        self._text_on = QtGui.QColor(color)
+        self.update()
 
     #Propriedade do Qt que permite que a animação altere a posição x da bolinha
     @QtCore.Property(float)
@@ -37,15 +82,9 @@ class SwitchToggle(QtWidgets.QCheckBox):
         painter.setRenderHint(QtGui.QPainter.Antialiasing)
 
         #Definição de cores
-        bg_color = (
-            QtGui.QColor("#62F59F") if self.isChecked() else QtGui.QColor("#2A313D")
-        )
-        border_color = (
-            QtGui.QColor("#62F59F") if self.isChecked() else QtGui.QColor("#455060")
-        )
-        text_color = (
-            QtGui.QColor("#62F59F") if self.isChecked() else QtGui.QColor("#8A99AD")
-        )
+        bg_color = self._bg_on if self.isChecked() else self._bg_off
+        border_color = self._bg_on if self.isChecked() else self._border_off
+        text_color = self._text_on if self.isChecked() else self._text_off
 
         #Desenha o fundo da pílula
         painter.setPen(QtGui.QPen(border_color, 1))
