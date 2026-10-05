@@ -70,8 +70,6 @@ class Settings(QtWidgets.QWidget):
         group_tema.addButton(self.btnLight)
         group_tema.addButton(self.btnSystem)
 
-        self.btnDark.setChecked(True) #Faz o botão dark começar selecionado
-
         layout_btn_tema = QtWidgets.QHBoxLayout() #Cria o layout horizontal para os botões
         layout_btn_tema.addWidget(self.btnDark) #Adiciona os botões ao layout
         layout_btn_tema.addWidget(self.btnLight)
@@ -260,7 +258,23 @@ class Settings(QtWidgets.QWidget):
 
         return card, layout_card
 
-    #Função que emite o sinal para a main
+    def sync_theme_buttons(self, current_theme: str):
+        self.btnDark.blockSignals(True)
+        self.btnLight.blockSignals(True)
+        self.btnSystem.blockSignals(True)
+
+        if current_theme == "dark":
+            self.btnDark.setChecked(True)
+        elif current_theme == "light":
+            self.btnLight.setChecked(True)
+        else:
+            self.btnSystem.setChecked(True)
+
+        self.btnDark.blockSignals(False)
+        self.btnLight.blockSignals(False)
+        self.btnSystem.blockSignals(False)
+
+    #Função que emite o sinal do combo_language para a main
     def _language_combo_changed(self, text: str):
         lang_code = self.lang_map.get(text, "pt_BR")
         self.language_changed.emit(lang_code)

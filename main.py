@@ -159,6 +159,8 @@ class Window(QtWidgets.QWidget):
         #Recebe o sinal do "settings" para mudar a tela de volta à home
         self.settingsPage.back.connect(self.change_screen)
 
+        saved_theme = self.settings.value("theme", "dark")
+        self.apply_theme(saved_theme)
         self.load_initial_language()
 
 
@@ -271,12 +273,15 @@ class Window(QtWidgets.QWidget):
 
     #Função para mudar o tema do aplicativo
     def apply_theme(self, theme: str):
+        self.settings.setValue("theme", theme)
         app = QtWidgets.QApplication.instance()
 
         if theme == "system":
-            theme = "dark" if darkdetect.isDark() else "light"
+            theme_real = "dark" if darkdetect.isDark() else "light"
+        else:
+            theme_real = theme
 
-        theme_name = (f"{STYLE_PATH}/dark.qss" if theme == "dark" else f"{STYLE_PATH}/light.qss")
+        theme_name = (f"{STYLE_PATH}/dark.qss" if theme_real == "dark" else f"{STYLE_PATH}/light.qss")
 
         with open(f"{STYLE_PATH}/style.qss", "r") as f:
             base_style = f.read()
@@ -285,6 +290,9 @@ class Window(QtWidgets.QWidget):
 
         #Concatenação dos arquivos .qss
         app.setStyleSheet(base_style + "\n" + theme_style)
+
+        if hasattr(self, "settingsPage"):
+            self.settingsPage.sync_theme_buttons(theme)
 
     #Funções para alterar o idioma do aplicativo
     def load_initial_language(self):
@@ -311,7 +319,5 @@ if __name__ == "__main__":
     widget = Window()
     widget.resize(1000, 650)
     widget.show()
-
-    widget.apply_theme("dark")
 
     sys.exit(app.exec())
