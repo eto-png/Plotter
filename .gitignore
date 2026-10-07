@@ -11,3 +11,6 @@ tests/
 test_*.py
 
 test.db
+
+ai/
+*.gguf
