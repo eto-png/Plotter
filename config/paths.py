@@ -11,3 +11,6 @@ STYLE_PATH = ASSETS_DIR / "style"
 # dados
 DATA_DIR = ROOT_DIR / "data"
 DASHBOARDS_DIR = DATA_DIR / "dashboards"
+
+#ia
+AI_DIR = ROOT_DIR / "ai"
