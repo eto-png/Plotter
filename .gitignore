@@ -12,5 +12,8 @@ test_*.py
 
 test.db
 
+schema/
+*_schema.json
+
 ai/
 *.gguf
