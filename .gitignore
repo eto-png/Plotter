@@ -15,5 +15,8 @@ test.db
 schema/
 *_schema.json
 
+sheets/
+*.xlsx
+
 ai/
 *.gguf
