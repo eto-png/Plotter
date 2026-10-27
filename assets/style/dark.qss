@@ -134,3 +134,13 @@ SwitchToggle {
   background-color: #62F59F;
   color: #000000;
 }
+
+/*Estilos da loagind*/
+QLabel#imgStatus[img="chart"] {
+  qproperty-pixmap: url("assets/images/dark/chart-bar.svg")
+}
+
+#progressBar::chunk {
+  background-color: #62F59F;
+  border-radius: 4px;
+}

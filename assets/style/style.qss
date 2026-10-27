@@ -173,3 +173,26 @@ Window[mode="maximized"] #btnComma, Window[mode="maximized"] #btnPoint {
   margin-left: 150px;
   margin-right: 150px;
 }
+
+/*Estilos da loading*/
+#loadingTitle {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+QLabel#imgStatus[img="error"] {
+  qproperty-pixmap: url("assets/images/x-circle.svg")
+}
+
+#progressBar {
+  background-color: #7E7E7E;
+  border-radius: 4px;
+}
+
+#stepsContainer {
+  margin-top: 10px;
+}
+
+#stepLabel {
+  font-size: 18px;
+}

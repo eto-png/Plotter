@@ -6,6 +6,9 @@ from config.locales import languages
 from config.paths import IMAGES_DIR
 
 class Home(QtWidgets.QWidget):
+    #Cria o sinal que envia o camainho do arquivo selecionado
+    file_selected = QtCore.Signal(str)
+    
     def __init__(self):
         super().__init__()
 
@@ -59,6 +62,7 @@ class Home(QtWidgets.QWidget):
         #Só para testar se ta pegando o caminho do arquivo
         if filePath:
             print(f"Arquivo selecionado: {filePath}")
+            self.file_selected.emit(filePath)
 
     #Função para alterar os textos de acordo com o idioma escolhido
     def retranslate(self, lang_code: str):

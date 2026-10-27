@@ -6,6 +6,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from config.locales import languages
 from view.home import Home
 from view.settings import Settings
+from view.loading import Loading
+from view.testeIA import Test #Testes, possivelmente apagar depois
 
 from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 
@@ -15,6 +17,11 @@ class Window(QtWidgets.QWidget):
 
         #Instancia o QSettings
         self.settings = QtCore.QSettings("TCC", "Plotter")
+
+        #Instancia as outras telas
+        self.homePage = Home()
+        self.settingsPage = Settings()
+        self.loadingPage = Loading()
 
         #Esconde a barra de título e cria uma variavel pra armazenar a posição do mouse
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -68,9 +75,6 @@ class Window(QtWidgets.QWidget):
         title_layout.addWidget(self.title_btnMin)
         title_layout.addWidget(self.title_btnWid)
         title_layout.addWidget(self.title_btnClose)
-
-        #Instancia a tela home
-        self.homePage = Home()
         
         #Adiciona a barra e o conteudo ao layout principal
         self.main_layout.addWidget(self.title_bar)
@@ -133,14 +137,15 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.move(10, 54)
         self.btnMenu.clicked.connect(self.toggle_menu)
 
-
+        #Cria o stack de paginas
         self.stack = QtWidgets.QStackedWidget()
 
-        self.settingsPage = Settings()
-
+        #Adiciona as paginas ao stack
         self.stack.addWidget(self.homePage)
         self.stack.addWidget(self.settingsPage)
+        self.stack.addWidget(self.loadingPage)
 
+        #Adiciona o stack ao layout da main
         self.main_layout.addWidget(self.stack)
 
         #Empurra o elemento pra camada mais alta. Como o sidebar e o botão menu são elementos flutuantes (não estão em um layout), é necessario empurra-los para frente
@@ -158,6 +163,8 @@ class Window(QtWidgets.QWidget):
         self.settingsPage.language_changed.connect(self.on_language_change)
         #Recebe o sinal do "settings" para mudar a tela de volta à home
         self.settingsPage.back.connect(self.change_screen)
+        #Recebe o sinal do "home" e conecta à função de começar o loading
+        self.homePage.file_selected.connect(self.start_loading)
 
         saved_theme = self.settings.value("theme", "dark")
         self.apply_theme(saved_theme)
@@ -261,10 +268,11 @@ class Window(QtWidgets.QWidget):
 
         self.group.start()
 
+    #Função para mudar a tela
     def change_screen(self, indice: int):
         self.stack.setCurrentIndex(indice)
 
-        if indice == 1:
+        if indice in (1, 2):
             self.sidebar.hide()
             self.btnMenu.hide()
         else:
@@ -306,10 +314,23 @@ class Window(QtWidgets.QWidget):
     def apply_language(self, lang_code: str):
         self.settingsPage.retranslate(lang_code)
         self.homePage.retranslate(lang_code)
+        self.loadingPage.retranslate(lang_code)
 
         texts = languages.get(lang_code, languages["pt_BR"])
         self.btnHistory.setText(texts["menu_dashboard"])
         self.btnConfig.setText(texts["menu_settings"])
+
+    def start_loading(self, file_path: str):
+        self.change_screen(2)
+
+        print(f"Iniciando análise de planilha: {file_path}") #Só para testar
+        current_lang = self.settings.value("language", "pt_BR")
+
+        self.teste = Test(file_path, current_lang)
+        self.teste.started_steps.connect(self.loadingPage.setup_etapas)
+        self.teste.step_changed.connect(self.loadingPage.on_step_changed)
+        self.teste.failed.connect(self.loadingPage.on_failed)
+        self.teste.start()
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

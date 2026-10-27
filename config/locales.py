@@ -43,7 +43,16 @@ languages = {
     "btn_comma": "Vírgula (,)",
     "btn_point": "Ponto (.)",
 
-    "btn_back": "Voltar"
+    "btn_back": "Voltar",
+
+    #Configurações do loading
+    "loading_title": "Gerando dashboard",
+    "loading_title_error": "Erro na geração do dashboard",
+    "loading_steps": [
+      "Arquivo lido",
+      "Interpretação dos dados",
+      "Criação dos gráficos"
+    ]
   },
   "en_US": {
       #Configurações globais
@@ -89,6 +98,15 @@ languages = {
       "btn_comma": "Comma (,)",
       "btn_point": "Point (.)",
   
-      "btn_back": "Back"
+      "btn_back": "Back",
+
+      #Configurações do loading
+      "loading_title": "Generating dashboard",
+      "loading_title_error": "Error in dashboard generation",
+      "loading_steps": [
+        "File read",
+        "Data interpretation",
+        "Graph creation"
+      ]
     }
 }
