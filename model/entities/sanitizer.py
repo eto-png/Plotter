@@ -84,7 +84,7 @@ class GenericDataSanitizer:
         for char, repl in replacements.items():
             col = col.replace(char, repl)
 
-        # Remove qualificadores/unidades entre parênteses: (R$), (%), (kg)
+        # Remove qualificadores/unidades entre parênteses
         col = re.sub(r'\s*\([^)]*\)', '', col)
 
         # Substitui caracteres não alfanuméricos por underline
@@ -110,11 +110,11 @@ class GenericDataSanitizer:
                 s.astype(str)
                 .str.replace(r'R\$\s*', '', regex=True)
                 .str.replace(r'%', '', regex=False)
-                .str.replace(r'\.', '', regex=True)  # Remove ponto de milhar PT-BR
-                .str.replace(',', '.', regex=False)  # Troca vírgula decimal por ponto
+                .str.replace(r'\.', '', regex=True)
+                .str.replace(',', '.', regex=False)
                 .str.strip()
             )
-            return pd.to_numeric(cleaned_str, errors='ignore')
+            return pd.to_numeric(cleaned_str, errors='coerce')
 
         # B. Detecção de Números Flutuantes em PT-BR sem prefixo R$ (ex: '120,50')
         is_br_float = sample.str.match(r'^-?\d+(\.\d+)*,\d+$').mean() > 0.5
@@ -125,12 +125,12 @@ class GenericDataSanitizer:
                 .str.replace(',', '.', regex=False)
                 .str.strip()
             )
-            return pd.to_numeric(cleaned_str, errors='ignore')
+            return pd.to_numeric(cleaned_str, errors='coerce')
 
         # C. Detecção de Datas (Ex: '2023-10-01' ou '01/10/2023')
         is_date = sample.str.match(r'^\d{4}-\d{2}-\d{2}|^\d{2}/\d{2}/\d{4}').mean() > 0.5
         if is_date:
-            return pd.to_datetime(s, errors='ignore')
+            return pd.to_datetime(s, errors='coerce')
 
         # D. Detecção de Booleanos (Sim/Não, S/N, True/False)
         upper_sample = sample.str.upper().str.strip()

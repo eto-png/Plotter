@@ -4,8 +4,8 @@ from pathlib import Path
 from config.paths import ROOT_DIR, AI_DIR
 
 # Configuração da URL do modelo (Recomendado para uso em CPU: Phi-3-Mini quantizado)
-MODEL_URL = "https://huggingface.co/microsoft/Phi-3-mini-4k-instruct-gguf/resolve/main/Phi-3-mini-4k-instruct-q4.gguf"
-MODEL_FILENAME = "phi-3-mini-4k-instruct-q4.gguf"
+MODEL_URL = "https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf"
+MODEL_FILENAME = "qwen2.5-3b-instruct-q4_k_m.gguf"
 
 # Utiliza pathlib para garantir caminhos absolutos baseados na raiz do projeto
 
