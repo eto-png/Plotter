@@ -71,6 +71,7 @@ Exemplo de Saída JSON:
   "cartao de credito": "Cartão de Crédito",
   "Pix": "Pix",
   "pix": "Pix",
+  "pix QR Code": "Pix",
   "CD": "Cartão de Débito",
   "cartao debito": "Cartão de Débito"
 }}
