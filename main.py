@@ -8,6 +8,7 @@ from view.home import Home
 from view.settings import Settings
 from view.loading import Loading
 from view.testeIA import Test #Testes, possivelmente apagar depois
+from view.components.sidebar import Sidebar
 
 from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 
@@ -18,6 +19,8 @@ class Window(QtWidgets.QWidget):
         #Instancia o QSettings
         self.settings = QtCore.QSettings("TCC", "Plotter")
 
+        #Cria o stack de paginas
+        self.stack = QtWidgets.QStackedWidget()
         #Instancia as outras telas
         self.homePage = Home()
         self.settingsPage = Settings()
@@ -79,66 +82,22 @@ class Window(QtWidgets.QWidget):
         #Adiciona a barra e o conteudo ao layout principal
         self.main_layout.addWidget(self.title_bar)
 
-        #Criação da "div" do menu lateral
-        self.sidebar = QtWidgets.QFrame(self)
-        self.sidebar.setObjectName("sidebar")
-        self.sidebar.setGeometry(0, 44, 0, self.height() - 44)
-        self.sidebar.hide()
-
-        #Criação do layout do menu lateral
-        layout_sidebar = QtWidgets.QVBoxLayout(self.sidebar)
-        layout_sidebar.setContentsMargins(12, 0, 12, 0)
-
-        #Criação do layout para o cabeçalho do menu, permitindo que o botão de fechar fique na direita
-        layout_headerSidebar = QtWidgets.QHBoxLayout()
-        layout_headerSidebar.setContentsMargins(0, 10, 0, 0)
-
-        #Criação do botão de fechar o menu lateral
-        self.btnCloseSidebar = QtWidgets.QPushButton()
-        self.btnCloseSidebar.setIcon(QtGui.QIcon())
-        self.btnCloseSidebar.setObjectName("btnCloseSidebar")
-        self.btnCloseSidebar.setFixedSize(30, 30)
-        self.btnCloseSidebar.clicked.connect(self.toggle_menu)
-
-        #Adicionando os elementos ao cabeçalho
-        layout_headerSidebar.addStretch()
-        layout_headerSidebar.addWidget(self.btnCloseSidebar)
-
-        #Criação do botão "Outros dashboards"
-        self.btnHistory = QtWidgets.QPushButton("Outros dashboards")
-        self.btnHistory.setIcon(QtGui.QIcon())
-        self.btnHistory.setIconSize(QtCore.QSize(23, 23))
-        self.btnHistory.setObjectName("btnHistory")
-
-        #Criação do botão "Configurações"
-        self.btnConfig = QtWidgets.QPushButton("Configurações")
-        self.btnConfig.setIcon(QtGui.QIcon())
-        self.btnConfig.setIconSize(QtCore.QSize(23, 23))
-        self.btnConfig.setObjectName("btnConfig")
-        self.btnConfig.clicked.connect(lambda: self.change_screen(1))
-
-        #Criação da linha que separa as opções do menu lateral
-        menuRow = QtWidgets.QWidget()
-        menuRow.setFixedHeight(1)
-        menuRow.setObjectName("menuRow")
-
-        #Adicionando elementos ao menu lateral
-        layout_sidebar.addLayout(layout_headerSidebar)
-        layout_sidebar.addWidget(self.btnHistory)
-        layout_sidebar.addWidget(menuRow)
-        layout_sidebar.addWidget(self.btnConfig)
-        layout_sidebar.addStretch()
-
         #Criação do botão do menu lateral
         self.btnMenu = QtWidgets.QPushButton(self)
         self.btnMenu.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/menu-burger.svg"))
         self.btnMenu.setObjectName("btnMenu")
         self.btnMenu.setFixedSize(50, 45)
         self.btnMenu.move(10, 54)
-        self.btnMenu.clicked.connect(self.toggle_menu)
 
-        #Cria o stack de paginas
-        self.stack = QtWidgets.QStackedWidget()
+        #Instancia o menu lateral
+        self.sidebar = Sidebar(self)
+        self.sidebar.setGeometry(0, 44, 0, self.height() - 44)
+        
+        #Conecta os botões e sinais às respectivas funções
+        self.btnMenu.clicked.connect(self.sidebar.toggle_menu)
+        self.sidebar.animation_started.connect(self.on_sidebar_started)
+        self.sidebar.animation_finished.connect(self.on_sidebar_finished)
+        self.sidebar.change_page.connect(self.change_screen)
 
         #Adiciona as paginas ao stack
         self.stack.addWidget(self.homePage)
@@ -153,7 +112,7 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.raise_()
 
         #Faz com que o cursor fique com o dedinho nos botões
-        buttons = [self.title_btnMin, self.title_btnWid, self.title_btnClose, self.btnMenu, self.btnCloseSidebar, self.btnConfig, self.btnHistory]
+        buttons = [self.title_btnMin, self.title_btnWid, self.title_btnClose, self.btnMenu, self.sidebar.btnCloseSidebar, self.sidebar.btnConfig, self.sidebar.btnHistory]
         for btn in buttons:
             btn.setCursor(QtCore.Qt.PointingHandCursor)
 
@@ -221,52 +180,16 @@ class Window(QtWidgets.QWidget):
     def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         self.old_pos = None
 
-    #Função para abrir o menu lateral
-    def toggle_menu(self):
-        # Garante altura inteira útil
-        self.sidebar.setFixedHeight(self.height() - 44)
-
-        #Descobre o estado atual
-        largura_atual = self.sidebar.width()
-        abrir = not self.sidebar.isVisible() or largura_atual == 0
-
-        largura_inicio = 0 if abrir else 220
-        largura_fim = 220 if abrir else 0
-
+    #Funções para mostrar e esconder o botão do menu lateral
+    def on_sidebar_started(self, abrir: bool):
         if abrir:
-            self.sidebar.show()
             self.btnMenu.hide()
 
-        #Animação da Largura Mínima
-        self.anim_min = QtCore.QPropertyAnimation(self.sidebar, b"minimumWidth")
-        self.anim_min.setDuration(250)
-        self.anim_min.setStartValue(largura_inicio)
-        self.anim_min.setEndValue(largura_fim)
-
-        #Animação da Largura Máxima
-        self.anim_max = QtCore.QPropertyAnimation(self.sidebar, b"maximumWidth")
-        self.anim_max.setDuration(250)
-        self.anim_max.setStartValue(largura_inicio)
-        self.anim_max.setEndValue(largura_fim)
-
-        #Executa ambas ao mesmo tempo
-        self.group = QtCore.QParallelAnimationGroup(self)
-        self.group.addAnimation(self.anim_min)
-        self.group.addAnimation(self.anim_max)
-
-        #Quando fecha, esconde a sidebar
+    def on_sidebar_finished(self, abrir: bool):
         if not abrir:
-            def ao_terminar():
-                self.sidebar.hide()
-
-                if self.stack.currentIndex() != 1:
-                    self.btnMenu.show()
-                    #Garante que o botão continue no topo e clicável
-                    self.btnMenu.raise_()
-
-            self.group.finished.connect(ao_terminar)
-
-        self.group.start()
+            if self.stack.currentIndex() != 1:
+                self.btnMenu.show()
+                self.btnMenu.raise_()
 
     #Função para mudar a tela
     def change_screen(self, indice: int):
@@ -317,8 +240,8 @@ class Window(QtWidgets.QWidget):
         self.loadingPage.retranslate(lang_code)
 
         texts = languages.get(lang_code, languages["pt_BR"])
-        self.btnHistory.setText(texts["menu_dashboard"])
-        self.btnConfig.setText(texts["menu_settings"])
+        self.sidebar.btnHistory.setText(texts["menu_dashboard"])
+        self.sidebar.btnConfig.setText(texts["menu_settings"])
 
     def start_loading(self, file_path: str):
         self.change_screen(2)
