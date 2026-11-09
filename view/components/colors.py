@@ -8,8 +8,8 @@ class TemaEscuro:
     FUNDO_PRINCIPAL = QColor("#1A1C2A")
     FUNDO_CARD = QColor("#070C27")
 
-    DESTAQUE_PRINCIPAL = QColor("#46538E")  
-    DESTAQUE_SECUNDARIO = QColor("#2F3562")  
+    DESTAQUE_PRINCIPAL = QColor("#62F59F")  
+    DESTAQUE_SECUNDARIO = QColor("#47806d")  
 
     #TODO: adicionar cores alternativas para mais séries
 
