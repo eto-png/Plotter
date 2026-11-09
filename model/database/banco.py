@@ -160,6 +160,18 @@ class BancoOperacoes(Banco):
             self.connection.rollback()
             return None
 
+    def executar_select(self, sql: str, parametros: tuple = None):
+        try:
+            cursor = self.connection.cursor()
+            if parametros:
+                cursor.execute(sql, parametros)
+            else:
+                cursor.execute(sql)
+            return cursor.fetchall()
+        except sqlite3.Error as e:
+            print(f"Erro ao executar consulta: {e}")
+            return None
+
     # =========================================================
     # 1. TABELAS SEM CHAVES ESTRANGEIRAS
     # =========================================================
