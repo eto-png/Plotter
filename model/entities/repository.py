@@ -146,8 +146,8 @@ class GenericDatabaseRepository:
 
             self.banco.inserir_venda(cd_localidade, cd_vendedor, cd_forma_pagamento, dt_venda, nr_parcelas, vl_total, vl_desconto, ds_observacao, nm_cliente)
 
-            lista_produto = (cd_produto, cd_venda)
-             # (cd_produto, cd_venda)
+            lista_produto = (cd_venda, cd_produto)
+             # (cd_venda, cd_produto)
 
             qt_produto = row.get(col_qt_produto, None)
             vl_unitario = row.get(col_vl_unitario, None)
