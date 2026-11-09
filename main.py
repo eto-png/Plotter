@@ -9,6 +9,7 @@ from view.settings import Settings
 from view.loading import Loading
 from view.testeIA import Test #Testes, possivelmente apagar depois
 from view.components.sidebar import Sidebar
+from view.components.titlebar import Titlebar
 
 from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 
@@ -35,52 +36,11 @@ class Window(QtWidgets.QWidget):
         self.main_layout.setContentsMargins(0, 0, 0, 0)
         self.main_layout.setSpacing(0)
 
-        #Cria uma "div" para a barra de titulo
-        self.title_bar = QtWidgets.QWidget()
-        self.title_bar.setFixedHeight(44)
-        self.title_bar.setObjectName("barraTitulo")
-
-        #Cria o layout da barra de titulo
-        title_layout = QtWidgets.QHBoxLayout(self.title_bar)
-        title_layout.setContentsMargins(15, 0, 0, 0)
-
-        #Elementos da barra de titulo
-        self.logo_label = QtWidgets.QLabel() #Criação da label para ter o logo
-        self.logo_label.setObjectName("logo")
-        pixmap_logo = QtGui.QPixmap(f"{IMAGES_DIR}/logo plotter.png")
-        self.logo_label.setPixmap(pixmap_logo.scaled(35, 35, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
-
-        self.title_label = QtWidgets.QLabel("Plotter") #Criação do "titulo"
-        self.title_label.setObjectName("titulo")
-
-        self.title_btnMin = QtWidgets.QPushButton() #Criação do botão de minimizar
-        self.title_btnMin.setObjectName("btnMin")
-        self.title_btnMin.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/window-minimize.svg"))
-        self.title_btnMin.setFixedSize(44, 44)
-        self.title_btnMin.clicked.connect(self.showMinimized)
-
-        self.title_btnWid = QtWidgets.QPushButton() #Criação do botão de redimensionar
-        self.title_btnWid.setObjectName("btnWid")
-        self.title_btnWid.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/cards.svg"))
-        self.title_btnWid.setFixedSize(44, 44)
-        self.title_btnWid.clicked.connect(self.change_size)
-
-        self.title_btnClose = QtWidgets.QPushButton() #Criação do botão de fechar
-        self.title_btnClose.setObjectName("btnClose")
-        self.title_btnClose.setIcon(QtGui.QIcon(f"{IMAGES_DIR}/x.svg"))
-        self.title_btnClose.setFixedSize(44, 44)
-        self.title_btnClose.clicked.connect(self.close)
-
-        #Adiciona os elementos ao layout da barra
-        title_layout.addWidget(self.logo_label)
-        title_layout.addWidget(self.title_label)
-        title_layout.addStretch()
-        title_layout.addWidget(self.title_btnMin)
-        title_layout.addWidget(self.title_btnWid)
-        title_layout.addWidget(self.title_btnClose)
+        #Instancia a barra de titulo
+        self.titlebar = Titlebar(self)
         
         #Adiciona a barra e o conteudo ao layout principal
-        self.main_layout.addWidget(self.title_bar)
+        self.main_layout.addWidget(self.titlebar)
 
         #Criação do botão do menu lateral
         self.btnMenu = QtWidgets.QPushButton(self)
@@ -112,7 +72,7 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.raise_()
 
         #Faz com que o cursor fique com o dedinho nos botões
-        buttons = [self.title_btnMin, self.title_btnWid, self.title_btnClose, self.btnMenu, self.sidebar.btnCloseSidebar, self.sidebar.btnConfig, self.sidebar.btnHistory]
+        buttons = [self.btnMenu, self.sidebar.btnCloseSidebar, self.sidebar.btnConfig, self.sidebar.btnHistory]
         for btn in buttons:
             btn.setCursor(QtCore.Qt.PointingHandCursor)
 
@@ -138,13 +98,6 @@ class Window(QtWidgets.QWidget):
 
         self.update_qss()
 
-    #Função para mudar o tamanho da janela
-    def change_size(self):
-      if self.isMaximized():
-        self.showNormal()
-      else:
-        self.showMaximized()
-
     #Função para atualizar o qss de acordo com o tamanho da tela
     def update_qss(self):
         mode = "maximized" if self.isMaximized() else "normal"
@@ -164,21 +117,6 @@ class Window(QtWidgets.QWidget):
             if layout:
                 layout.invalidate()
                 layout.activate()
-
-    #Funções para conseguir arrastar a tela
-    def mousePressEvent(self, event: QtGui.QMouseEvent):
-        if event.button() == QtCore.Qt.LeftButton:
-            if self.title_bar.underMouse():
-                self.old_pos = event.globalPosition().toPoint()
-
-    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
-        if self.old_pos is not None:
-            delta = event.globalPosition().toPoint() - self.old_pos
-            self.move(self.x() + delta.x(), self.y() + delta.y())
-            self.old_pos = event.globalPosition().toPoint()
-
-    def mouseReleaseEvent(self, event: QtGui.QMouseEvent):
-        self.old_pos = None
 
     #Funções para mostrar e esconder o botão do menu lateral
     def on_sidebar_started(self, abrir: bool):
