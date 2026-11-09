@@ -11,13 +11,14 @@ QLabel {
 }
             
 #btnMin, #btnWid, #btnClose, #btnMenu {
-  background-color: #070C27;
+  background-color: #transparent;
   color: #ACABAB;
   border: none;
 }
 
 #btnMenu {
   border-radius: 8px;
+  background-color: #070C27;
 }
             
 #btnMin:hover, #btnWid:hover, #btnMenu:hover {
