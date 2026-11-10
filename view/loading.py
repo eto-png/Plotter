@@ -5,6 +5,8 @@ from PySide6 import QtCore, QtWidgets, QtGui
 from config.locales import languages
 
 class Loading(QtWidgets.QWidget):
+  finished = QtCore.Signal(int)
+
   def __init__(self):
     super().__init__()
 
@@ -67,6 +69,9 @@ class Loading(QtWidgets.QWidget):
       if not font.strikeOut():
         font.setStrikeOut(True)
         lbl.setFont(font)
+
+    if percentage >= 100:
+      self.finished.emit(3)
 
   def on_failed(self, index: int):
     self.set_status_image("error")

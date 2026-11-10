@@ -11,7 +11,7 @@ QLabel {
 }
             
 #btnMin, #btnWid, #btnClose, #btnMenu {
-  background-color: #transparent;
+  background-color: transparent;
   color: #ACABAB;
   border: none;
 }

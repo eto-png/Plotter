@@ -30,8 +30,8 @@ class Test(QtCore.QThread):
         percentual = int(((index + 1) / len(self.etapas)) * 100)
 
         # Exemplo de simulação de erro na etapa 2 (descomente para testar o erro):
-        if index == 2:
-          raise Exception("Falha de conexão com a API da IA no passo 3.")
+        #if index == 2:
+          #raise Exception("Falha de conexão com a API da IA no passo 3.")
 
         # Emite sinal para atualizar a interface
         self.step_changed.emit(index, percentual, etapa)

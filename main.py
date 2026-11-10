@@ -8,6 +8,7 @@ from view.home import Home
 from view.settings import Settings
 from view.loading import Loading
 from view.testeIA import Test #Testes, possivelmente apagar depois
+from view.dashboard import Dashboard
 from view.components.sidebar import Sidebar
 from view.components.titlebar import Titlebar
 
@@ -26,6 +27,7 @@ class Window(QtWidgets.QWidget):
         self.homePage = Home()
         self.settingsPage = Settings()
         self.loadingPage = Loading()
+        self.dashboardPage = Dashboard()
 
         #Esconde a barra de título e cria uma variavel pra armazenar a posição do mouse
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
@@ -63,6 +65,7 @@ class Window(QtWidgets.QWidget):
         self.stack.addWidget(self.homePage)
         self.stack.addWidget(self.settingsPage)
         self.stack.addWidget(self.loadingPage)
+        self.stack.addWidget(self.dashboardPage)
 
         #Adiciona o stack ao layout da main
         self.main_layout.addWidget(self.stack)
@@ -84,6 +87,8 @@ class Window(QtWidgets.QWidget):
         self.settingsPage.back.connect(self.change_screen)
         #Recebe o sinal do "home" e conecta à função de começar o loading
         self.homePage.file_selected.connect(self.start_loading)
+        #Recebe o sinal do "loading" e conecta à função de mudar de pagina
+        self.loadingPage.finished.connect(self.change_screen)
 
         saved_theme = self.settings.value("theme", "dark")
         self.apply_theme(saved_theme)
