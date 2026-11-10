@@ -2,14 +2,21 @@ import math
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, QRectF, QSettings
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath, QFontDatabase
 
 from view.components.colors import TemaEscuro, TemaClaro
 
+from config.paths import FONTS_DIR
+
 class BaseGrafico(QWidget):
-    def __init__(self, parent=None, dados=None):
+    def __init__(self, parent=None, dados=None, titulo=""):
         super().__init__(parent)
         self.settings = QSettings("TCC", "Plotter")
+        self.tema = TemaEscuro if self.settings.value("theme", "dark") == "dark" else TemaClaro()
+
+        self.titulo = titulo
+        self.fonte = "Poppins"
+
         self.dados = dados or []
 
     def atulizar_dados(self, dados_novos):
@@ -17,14 +24,48 @@ class BaseGrafico(QWidget):
         self.update()
 
     def paintEvent(self, event):
-        pass
+        QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
+        QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        card_rect = rect.adjusted(1, 1, -1, -1)
+        tema = self.tema
+
+        # Fundo do Card com cantos arredondados e borda sutil
+        painter.setPen(QPen(QColor(0, 0, 0, 0), 1))
+        painter.setBrush(QBrush(tema.FUNDO_PRINCIPAL))
+        arred = 5
+        painter.drawRoundedRect(card_rect, arred, arred)
+
+        # Título do Card
+        if self.titulo:
+            caixa_label = QRectF(1, 0, rect.width() - 2, 28)
+
+            #metade da altura da caixa pra poder fazer a metade de baixo sem arredondar
+            metade_label = QRectF(1, 14, rect.width() - 2, 16)
+            painter.setBrush(QBrush(tema.FUNDO_CARD))
+            painter.drawRoundedRect(caixa_label, arred, arred)
+
+            painter.fillRect(metade_label, tema.FUNDO_CARD)
+
+            fonte_titulo = QFont(self.fonte, 10, QFont.Weight.Normal)
+            painter.setFont(fonte_titulo)
+            painter.setPen(tema.TEXTO_PRINCIPAL)
+            painter.drawText(caixa_label, Qt.AlignmentFlag.AlignCenter, self.titulo)
+
+        # Encerra o QPainter para evitar travamentos de concorrência na classe filha
+        painter.end()
 
 class LinhaDoTempo(BaseGrafico):
-    def __init__(self, parent=None, dados=None):
+    def __init__(self, parent=None, dados=None, titulo=None):
         #obrigatorio que os dados sejam uma coluna de data e outra de valor
-        super().__init__(parent, dados)
+        super().__init__(parent, dados, titulo)
 
         self.setMinimumSize(850, 320)
+        self.resize(850,320)
 
     def calcular_max_val_dinamico(self, valores: list) -> float:
         """
@@ -50,28 +91,18 @@ class LinhaDoTempo(BaseGrafico):
         return float(max_val)
 
     def paintEvent(self, event):
-        tema = TemaClaro()
+
+        super().paintEvent(event)
+
+        tema = self.tema
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         rect = self.rect()
 
-        fonte_principal = "Poppins"
+        fonte_principal = self.fonte
         
-        # fundo do grafico
-        painter.fillRect(rect, tema.FUNDO_PRINCIPAL)
-
-        #label
-        caixa_label = QRectF(0, 12, rect.width(), 28)
-        painter.fillRect(caixa_label, tema.FUNDO_CARD)
-
-        #titulo do grafico
-        fonte_titulo = QFont(fonte_principal, 11, QFont.Weight.Medium)
-        painter.setFont(fonte_titulo)
-        painter.setPen(tema.TEXTO_PRINCIPAL)
-
-        painter.drawText(caixa_label, Qt.AlignmentFlag.AlignCenter,"Faturamento Mensal")
 
         #area de desenho do card
         margin_left = 100
