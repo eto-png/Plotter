@@ -9,7 +9,7 @@ class TemaEscuro:
     FUNDO_CARD = QColor("#070C27")
 
     DESTAQUE_PRINCIPAL = QColor("#62F59F")  
-    DESTAQUE_SECUNDARIO = QColor("#47806d")  
+    DESTAQUE_SECUNDARIO = QColor("#398F5D")  
 
     #TODO: adicionar cores alternativas para mais séries
 

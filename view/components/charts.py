@@ -332,20 +332,22 @@ class BarrasH(BaseGrafico):
                 box_categoria = QRectF(0, y, margin_left - 10, altura_barra)
                 painter.drawText(box_categoria, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, nome_cat)
 
-            # 2. Gradiente Horizontal
+            #region Gradiente Horizontal
             gradient = QLinearGradient(margin_left, 0, margin_left + largura, 0)
-            gradient.setColorAt(0.0, QColor(92, 255, 141))
-            gradient.setColorAt(1.0, tema.DESTAQUE_PRINCIPAL)
+            gradient.setColorAt(0.0, tema.DESTAQUE_PRINCIPAL)
+            gradient.setColorAt(1.0, tema.DESTAQUE_SECUNDARIO)
+            #endregion
 
-            # 3. Retângulo da Barra
+            #region Retângulo da Barra
             painter.setPen(Qt.PenStyle.NoPen)
             painter.setBrush(QBrush(gradient))
             barra_rect = QRectF(margin_left, y, largura, altura_barra)
             painter.drawRect(barra_rect)
+            #endregion
 
-            # 4. Valor Numérico Dentro da Barra
+            #region Valor Numérico Dentro da Barra
             painter.setFont(font_valores_barra)
-            painter.setPen(tema.TEXTO_PRINCIPAL)
+            painter.setPen(QColor(255,255,255))
             
             if val >= 1000:
                 val_barra_str = f"R$ {val / 1000:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -354,6 +356,7 @@ class BarrasH(BaseGrafico):
                 
             box_valor_barra = QRectF(margin_left, y, largura - 10, altura_barra)
             painter.drawText(box_valor_barra, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, val_barra_str)
+            #endregion
 
         painter.end()
 
@@ -489,4 +492,47 @@ class BarrasV(BaseGrafico):
             box_valor_barra = QRectF(x - 15, y_topo - 25, largura_barra + 30, 20)
             painter.drawText(box_valor_barra, Qt.AlignmentFlag.AlignCenter, val_barra_str)
 
+        painter.end()
+
+class CardKPI(BaseGrafico):
+    def __init__(self, parent=None, titulo=None, texto_kpi=""):
+        # Repassa o titulo para o BaseGrafico processar a barra superior
+        super().__init__(parent, None, titulo)
+        
+        # Parâmetro adicional exclusivo do CardKPI
+        self.texto_kpi = texto_kpi
+        
+        # Reduzindo o tamanho mínimo, já que é apenas um card de exibição
+        self.setMinimumSize(200, 120)
+        self.resize(250, 120)
+
+    def set_texto_kpi(self, novo_texto: str):
+        """Método para atualizar o valor do KPI dinamicamente e redesenhar."""
+        self.texto_kpi = novo_texto
+        self.update()
+
+    def paintEvent(self, event):
+        # 1. Chama a classe pai para desenhar o fundo, os cantos e o título
+        super().paintEvent(event)
+
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        
+        rect = self.rect()
+        tema = self.tema
+        
+        # 2. Definição da área útil
+        # No BaseGrafico, a caixa_label do título tem 28px de altura (QRectF(1, 0, rect.width() - 2, 28))
+        # Portanto, a área de desenho do valor começa a partir do Y = 28
+        altura_titulo = 28
+        caixa_valor = QRectF(0, altura_titulo, rect.width(), rect.height() - altura_titulo)
+        
+        # 3. Desenho do Texto Principal do KPI (ex: "15 Mil")
+        # Tamanho maior de fonte e peso médio para dar destaque
+        fonte_valor = QFont(self.fonte, 22, QFont.Weight.Medium)
+        painter.setFont(fonte_valor)
+        painter.setPen(tema.TEXTO_PRINCIPAL)
+        
+        painter.drawText(caixa_valor, Qt.AlignmentFlag.AlignCenter, str(self.texto_kpi))
+        
         painter.end()
