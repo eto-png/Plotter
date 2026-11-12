@@ -59,6 +59,29 @@ class BaseGrafico(QWidget):
         # Encerra o QPainter para evitar travamentos de concorrência na classe filha
         painter.end()
 
+    def calcular_max_val_dinamico(self, valores: list) -> float:
+            """
+            Calcula o teto do eixo Y arredondando para a dezena, centena, milhar, etc.,
+            mais próxima para cima, dependendo da ordem de grandeza do maior valor.
+            """
+            if not valores:
+                return 10.0
+    
+            maior_valor = max(valores)
+            if maior_valor <= 0:
+                return 10.0
+    
+            # Quantidade de dígitos da parte inteira
+            qtd_digitos = len(str(int(maior_valor)))
+    
+            # Define a base (2 dígitos -> 10, 3 dígitos -> 100, 4 dígitos -> 1000)
+            base = 10 ** max(1, qtd_digitos - 1)
+    
+            # Arredonda para CIMA na base encontrada
+            max_val = math.ceil(maior_valor / base) * base
+    
+            return float(max_val)
+
 class LinhaDoTempo(BaseGrafico):
     def __init__(self, parent=None, dados=None, titulo=None):
         #obrigatorio que os dados sejam uma coluna de data e outra de valor
@@ -67,28 +90,6 @@ class LinhaDoTempo(BaseGrafico):
         self.setMinimumSize(850, 320)
         self.resize(850,320)
 
-    def calcular_max_val_dinamico(self, valores: list) -> float:
-        """
-        Calcula o teto do eixo Y arredondando para a dezena, centena, milhar, etc.,
-        mais próxima para cima, dependendo da ordem de grandeza do maior valor.
-        """
-        if not valores:
-            return 10.0
-
-        maior_valor = max(valores)
-        if maior_valor <= 0:
-            return 10.0
-
-        # Quantidade de dígitos da parte inteira
-        qtd_digitos = len(str(int(maior_valor)))
-
-        # Define a base (2 dígitos -> 10, 3 dígitos -> 100, 4 dígitos -> 1000)
-        base = 10 ** max(1, qtd_digitos - 1)
-
-        # Arredonda para CIMA na base encontrada
-        max_val = math.ceil(maior_valor / base) * base
-
-        return float(max_val)
 
     def paintEvent(self, event):
 
@@ -223,3 +224,134 @@ class LinhaDoTempo(BaseGrafico):
         painter.setPen(pen_axis)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawLine(margin_left, y_baseline, rect.width() - margin_right, y_baseline)
+
+class BarrasH(BaseGrafico):
+    def __init__(self, parent=None, dados=None, titulo=None, max_h=0, max_w=0):
+        super().__init__(parent, dados, titulo)
+        self.setMinimumSize(850, 320)
+        # self.resize(850, 320)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        tema = self.tema
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        fonte_principal = self.fonte
+
+        # Margens aumentadas na esquerda para caber os textos possivelmente longos/quebrados
+        margin_left = 135
+        margin_right = 50
+        margin_top = 65
+        margin_bottom = 45
+
+        plot_width = rect.width() - margin_left - margin_right
+        plot_height = rect.height() - margin_top - margin_bottom
+        y_baseline = rect.height() - margin_bottom
+
+        if not self.dados:
+            painter.end()
+            return
+
+        valores = [val for _, val in self.dados]
+        min_val = 0.0
+        max_val = self.calcular_max_val_dinamico(valores)
+
+        # --- Eixo X (Linhas Pontilhadas e Rótulos) ---
+        num_linhas = 3
+        passo_valor = (max_val - min_val) / num_linhas
+
+        pen_grid = QPen(QColor(tema.TEXTO_SECUNDARIO), 1, Qt.PenStyle.DotLine)
+        font_x_labels = QFont(fonte_principal, 8)
+        painter.setFont(font_x_labels)
+
+        for i in range(num_linhas + 1):
+            valor_nivel = min_val + (i * passo_valor)
+            x_linha = margin_left + ((valor_nivel - min_val) / (max_val - min_val)) * plot_width
+
+            painter.setPen(pen_grid)
+            painter.drawLine(x_linha, margin_top - 10, x_linha, y_baseline)
+
+            painter.setPen(tema.TEXTO_SECUNDARIO)
+            if valor_nivel >= 1000:
+                val_str = f"R$ {val:,.0f} Mil".replace(",", "X").replace(".", ",").replace("X", ".")
+            else:
+                val_str = f"R$ {valor_nivel:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+            if valor_nivel == 0:
+                val_str = "0"
+
+            box_rotulo_x = QRectF(x_linha - 30, y_baseline + 5, 60, 20)
+            painter.drawText(box_rotulo_x, Qt.AlignmentFlag.AlignCenter, val_str)
+
+        # Linha Base Eixo Y (Vertical)
+        pen_axis = QPen(tema.TEXTO_PRINCIPAL, 1)
+        painter.setPen(pen_axis)
+        painter.drawLine(margin_left, margin_top - 10, margin_left, y_baseline + 5)
+
+        # --- Desenho das Barras e Rótulos do Eixo Y ---
+        n_barras = len(self.dados)
+        espaco_entre_barras = 20
+        altura_barra = (plot_height - (espaco_entre_barras * (n_barras - 1))) / n_barras
+
+        font_y_labels = QFont(fonte_principal, 9)
+        font_valores_barra = QFont(fonte_principal, 9, QFont.Weight.Medium)
+
+        for i, (categoria, val) in enumerate(self.dados):
+            y = margin_top + (i * (altura_barra + espaco_entre_barras))
+            largura = ((val - min_val) / (max_val - min_val)) * plot_width
+
+            # 1. Rótulo Eixo Y com Quebra de Linha Inteligente
+            painter.setFont(font_y_labels)
+            painter.setPen(tema.TEXTO_PRINCIPAL)
+            
+            nome_cat = str(categoria)
+            limite_caracteres = 18 # Ajuste este valor se necessário para textos maiores ou menores
+
+            if len(nome_cat) > limite_caracteres and " " in nome_cat:
+                # Encontra o último espaço antes do limite de caracteres para não cortar palavras no meio
+                ponto_quebra = nome_cat[:limite_caracteres].rfind(" ")
+                if ponto_quebra == -1: # Fallback se a primeira palavra for enorme
+                    ponto_quebra = nome_cat.find(" ")
+                
+                linha1 = nome_cat[:ponto_quebra]
+                linha2 = nome_cat[ponto_quebra+1:]
+                
+                # Desenha a primeira linha deslocada levemente para cima
+                box_cat_L1 = QRectF(0, y - 6, margin_left - 10, altura_barra)
+                painter.drawText(box_cat_L1, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, linha1)
+                
+                # Desenha a segunda linha deslocada levemente para baixo
+                box_cat_L2 = QRectF(0, y + 8, margin_left - 10, altura_barra)
+                painter.drawText(box_cat_L2, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, linha2)
+            else:
+                # Comportamento padrão (uma linha)
+                box_categoria = QRectF(0, y, margin_left - 10, altura_barra)
+                painter.drawText(box_categoria, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, nome_cat)
+
+            # 2. Gradiente Horizontal
+            gradient = QLinearGradient(margin_left, 0, margin_left + largura, 0)
+            gradient.setColorAt(0.0, QColor(92, 255, 141))
+            gradient.setColorAt(1.0, tema.DESTAQUE_PRINCIPAL)
+
+            # 3. Retângulo da Barra
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QBrush(gradient))
+            barra_rect = QRectF(margin_left, y, largura, altura_barra)
+            painter.drawRect(barra_rect)
+
+            # 4. Valor Numérico Dentro da Barra
+            painter.setFont(font_valores_barra)
+            painter.setPen(tema.TEXTO_PRINCIPAL)
+            
+            if val >= 1000:
+                val_barra_str = f"R$ {val / 1000:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            else:
+                val_barra_str = f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+                
+            box_valor_barra = QRectF(margin_left, y, largura - 10, altura_barra)
+            painter.drawText(box_valor_barra, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, val_barra_str)
+
+        painter.end()
