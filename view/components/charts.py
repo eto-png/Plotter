@@ -2,7 +2,7 @@ import math
 
 from PySide6.QtWidgets import QWidget
 from PySide6.QtCore import Qt, QRectF, QSettings, Property, QPropertyAnimation, QEasingCurve
-from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath, QFontDatabase
+from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath, QFontDatabase, QFontMetrics
 
 from view.components.colors import TemaEscuro, TemaClaro
 
@@ -522,24 +522,17 @@ class BarrasV(BaseGrafico):
         painter.end()
 
 class CardKPI(BaseGrafico):
-    def __init__(self, parent=None, titulo=None, texto_kpi=""):
-        # Repassa o titulo para o BaseGrafico processar a barra superior
-        super().__init__(parent, None, titulo)
-        
-        # Parâmetro adicional exclusivo do CardKPI
+    def __init__(self, parent=None, dados=None, titulo=None, texto_kpi=""):
+        super().__init__(parent, dados, titulo)
         self.texto_kpi = texto_kpi
-        
-        # Reduzindo o tamanho mínimo, já que é apenas um card de exibição
         self.setMinimumSize(200, 120)
         self.resize(250, 120)
 
     def set_texto_kpi(self, novo_texto: str):
-        """Método para atualizar o valor do KPI dinamicamente e redesenhar."""
         self.texto_kpi = novo_texto
         self.update()
 
     def paintEvent(self, event):
-        # 1. Chama a classe pai para desenhar o fundo, os cantos e o título
         super().paintEvent(event)
 
         painter = QPainter(self)
@@ -548,19 +541,42 @@ class CardKPI(BaseGrafico):
         rect = self.rect()
         tema = self.tema
         
-        # 2. Definição da área útil
-        # No BaseGrafico, a caixa_label do título tem 28px de altura (QRectF(1, 0, rect.width() - 2, 28))
-        # Portanto, a área de desenho do valor começa a partir do Y = 28
+        # 1. Definição da área útil (com margens internas para o texto não colar nas bordas)
         altura_titulo = 28
-        caixa_valor = QRectF(0, altura_titulo, rect.width(), rect.height() - altura_titulo)
+        margem_interna = 10
+        caixa_valor = QRectF(
+            margem_interna, 
+            altura_titulo + margem_interna, 
+            rect.width() - (margem_interna * 2), 
+            rect.height() - altura_titulo - (margem_interna * 2)
+        )
         
-        # 3. Desenho do Texto Principal do KPI (ex: "15 Mil")
-        # Tamanho maior de fonte e peso médio para dar destaque
-        fonte_valor = QFont(self.fonte, 22, QFont.Weight.Medium)
+        # 2. Configurações iniciais da fonte e flags de alinhamento
+        tamanho_fonte = 24  # Tamanho máximo desejado
+        fonte_valor = QFont(self.fonte, tamanho_fonte, QFont.Weight.Medium)
+        
+        # A mágica da quebra de linha acontece combinando essas duas flags
+        flags = Qt.AlignmentFlag.AlignCenter | Qt.TextFlag.TextWordWrap
+        
+        # 3. Lógica de Redução Automática (Shrink to fit)
+        # Tenta diminuir o tamanho da fonte até um limite legível (ex: 10) se não couber na caixa
+        while tamanho_fonte > 10:
+            fonte_valor.setPointSize(tamanho_fonte)
+            metrics = QFontMetrics(fonte_valor)
+            
+            # Calcula a "caixa teórica" que o texto vai ocupar com a fonte atual
+            rect_necessario = metrics.boundingRect(caixa_valor.toRect(), flags, str(self.texto_kpi))
+            
+            # Se a caixa teórica for menor que o nosso espaço disponível, a fonte está perfeita!
+            if rect_necessario.width() <= caixa_valor.width() and rect_necessario.height() <= caixa_valor.height():
+                break
+                
+            tamanho_fonte -= 1  # Se for maior, reduz 1 ponto e tenta novamente
+        
+        # 4. Desenho final com a fonte e alinhamento ajustados
         painter.setFont(fonte_valor)
         painter.setPen(tema.TEXTO_PRINCIPAL)
-        
-        painter.drawText(caixa_valor, Qt.AlignmentFlag.AlignCenter, str(self.texto_kpi))
+        painter.drawText(caixa_valor, flags, str(self.texto_kpi))
         
         painter.end()
 
