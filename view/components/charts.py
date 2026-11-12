@@ -226,6 +226,7 @@ class LinhaDoTempo(BaseGrafico):
         painter.drawLine(margin_left, y_baseline, rect.width() - margin_right, y_baseline)
 
 class BarrasH(BaseGrafico):
+
     def __init__(self, parent=None, dados=None, titulo=None, max_h=0, max_w=0):
         super().__init__(parent, dados, titulo)
         self.setMinimumSize(850, 320)
@@ -353,5 +354,139 @@ class BarrasH(BaseGrafico):
                 
             box_valor_barra = QRectF(margin_left, y, largura - 10, altura_barra)
             painter.drawText(box_valor_barra, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, val_barra_str)
+
+        painter.end()
+
+class BarrasV(BaseGrafico):
+    def __init__(self, parent=None, dados=None, titulo=""):
+        super().__init__(parent, dados, titulo)
+        self.setMinimumSize(600, 600)
+
+    def paintEvent(self, event):
+        # 1. Pinta o card base e o título
+        super().paintEvent(event)
+
+        tema = self.tema
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        fonte_principal = self.fonte
+
+        # --- ÁREA DE DESENHO DO CARD ---
+        margin_left = 95
+        margin_right = 40
+        margin_top = 70
+        margin_bottom = 65  # Espaço maior na base para textos com quebra de linha
+
+        plot_width = rect.width() - margin_left - margin_right
+        plot_height = rect.height() - margin_top - margin_bottom
+        y_baseline = rect.height() - margin_bottom
+
+        if not self.dados:
+            painter.end()
+            return
+
+        valores = [val for _, val in self.dados]
+        min_val = 0.0
+        max_val = self.calcular_max_val_dinamico(valores)
+
+        # --- EIXO Y (Linhas Horizontais de Grade) ---
+        num_linhas = 4
+        passo_valor = (max_val - min_val) / num_linhas
+
+        pen_grid = QPen(QColor(tema.TEXTO_SECUNDARIO), 1, Qt.PenStyle.DotLine)
+        font_y_labels = QFont(fonte_principal, 8)
+        painter.setFont(font_y_labels)
+
+        for i in range(num_linhas + 1):
+            valor_nivel = min_val + (i * passo_valor)
+            y_linha = y_baseline - ((valor_nivel - min_val) / (max_val - min_val)) * plot_height
+
+            # Linha de grade horizontal
+            painter.setPen(pen_grid)
+            painter.drawLine(margin_left, y_linha, rect.width() - margin_right, y_linha)
+
+            # Rótulo de Valor
+            painter.setPen(tema.TEXTO_SECUNDARIO)
+            val_y_str = f"R$ {valor_nivel:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+            box_rotulo_y = QRectF(0, y_linha - 10, margin_left - 12, 20)
+            painter.drawText(box_rotulo_y, Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, val_y_str)
+
+        # --- LINHA BASE DO EIXO X ---
+        pen_axis = QPen(tema.TEXTO_PRINCIPAL, 1)
+        painter.setPen(pen_axis)
+        painter.drawLine(margin_left, y_baseline, rect.width() - margin_right, y_baseline)
+
+        # --- CÁLCULO E DESENHO DAS BARRAS VERTICAIS ---
+        n_barras = len(self.dados)
+        espaco_entre_barras = 35
+        
+        # Calcula a largura disponível por barra. Se houver poucas barras, limita a 75px de largura para ficar elegante
+        largura_calculada = (plot_width - (espaco_entre_barras * (n_barras - 1))) / n_barras
+        largura_barra = min(largura_calculada, 75)
+        
+        # Recalcula o deslocamento inicial (offset) para centralizar o bloco de barras no meio da tela
+        largura_total_real = (largura_barra * n_barras) + (espaco_entre_barras * (n_barras - 1))
+        offset_x = margin_left + (plot_width - largura_total_real) / 2
+
+        font_x_labels = QFont(fonte_principal, 8)
+        font_valores_barra = QFont(fonte_principal, 8, QFont.Weight.Bold)
+
+        for i, (categoria, val) in enumerate(self.dados):
+            x = offset_x + i * (largura_barra + espaco_entre_barras)
+            y_topo = y_baseline - ((val - min_val) / (max_val - min_val)) * plot_height
+            altura_barra = y_baseline - y_topo
+
+            # 1. Gradiente Vertical da Barra (Verde Claro no topo, Escuro na base)
+            gradient = QLinearGradient(0, y_topo, 0, y_baseline)
+            gradient.setColorAt(0.0, QColor(92, 255, 141))
+            gradient.setColorAt(1.0, tema.DESTAQUE_PRINCIPAL)
+
+            # 2. Desenho do Retângulo
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QBrush(gradient))
+            barra_rect = QRectF(x, y_topo, largura_barra, altura_barra)
+            painter.drawRect(barra_rect)
+
+            # 3. Rótulo Eixo X (Nome do Produto com quebra de linha inteligente)
+            painter.setFont(font_x_labels)
+            painter.setPen(tema.TEXTO_PRINCIPAL)
+            
+            nome_cat = str(categoria)
+            limite_caracteres = 13 
+
+            if len(nome_cat) > limite_caracteres and " " in nome_cat:
+                ponto_quebra = nome_cat[:limite_caracteres].rfind(" ")
+                if ponto_quebra == -1:
+                    ponto_quebra = nome_cat.find(" ")
+                
+                linha1 = nome_cat[:ponto_quebra]
+                linha2 = nome_cat[ponto_quebra+1:]
+                
+                # Desenha duas linhas centralizadas abaixo da barra
+                box_cat_L1 = QRectF(x - 20, y_baseline + 8, largura_barra + 40, 16)
+                painter.drawText(box_cat_L1, Qt.AlignmentFlag.AlignCenter, linha1)
+                
+                box_cat_L2 = QRectF(x - 20, y_baseline + 22, largura_barra + 40, 16)
+                painter.drawText(box_cat_L2, Qt.AlignmentFlag.AlignCenter, linha2)
+            else:
+                # Comportamento padrão: uma única linha
+                box_categoria = QRectF(x - 20, y_baseline + 10, largura_barra + 40, 20)
+                painter.drawText(box_categoria, Qt.AlignmentFlag.AlignCenter, nome_cat)
+
+            # 4. Valor Numérico no Topo da Barra
+            painter.setFont(font_valores_barra)
+            painter.setPen(tema.TEXTO_PRINCIPAL)
+            
+            # Abrevia valores altos para caber esteticamente sobre a barra vertical
+            if val >= 1000:
+                val_barra_str = f"R$ {val / 1000:,.2f} Mil".replace(",", ".")
+            else:
+                val_barra_str = f"R$ {val:,.2f}"
+                
+            # Caixa de texto logo acima da barra (y_topo - 25)
+            box_valor_barra = QRectF(x - 15, y_topo - 25, largura_barra + 30, 20)
+            painter.drawText(box_valor_barra, Qt.AlignmentFlag.AlignCenter, val_barra_str)
 
         painter.end()
