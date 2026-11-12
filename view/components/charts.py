@@ -51,7 +51,7 @@ class BaseGrafico(QWidget):
 
             painter.fillRect(metade_label, tema.FUNDO_CARD)
 
-            fonte_titulo = QFont(self.fonte, 10, QFont.Weight.Normal)
+            fonte_titulo = QFont(self.fonte, 12, QFont.Weight.Normal)
             painter.setFont(fonte_titulo)
             painter.setPen(tema.TEXTO_PRINCIPAL)
             painter.drawText(caixa_label, Qt.AlignmentFlag.AlignCenter, self.titulo)
