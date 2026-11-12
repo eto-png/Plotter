@@ -1,7 +1,7 @@
 import math
 
 from PySide6.QtWidgets import QWidget
-from PySide6.QtCore import Qt, QRectF, QSettings
+from PySide6.QtCore import Qt, QRectF, QSettings, Property, QPropertyAnimation, QEasingCurve
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath, QFontDatabase
 
 from view.components.colors import TemaEscuro, TemaClaro
@@ -12,28 +12,48 @@ class BaseGrafico(QWidget):
     def __init__(self, parent=None, dados=None, titulo=""):
         super().__init__(parent)
         self.settings = QSettings("TCC", "Plotter")
-        self.tema = TemaEscuro if self.settings.value("theme", "dark") == "dark" else TemaClaro()
-
+        self.tema = TemaEscuro() if str(self.settings.value("tema", "escuro")).lower() == "escuro" else TemaClaro()
         self.titulo = titulo
         self.fonte = "Poppins"
-
         self.dados = dados or []
+        
+        # Variável interna da animação (1.0 = Gráfico 100% desenhado)
+        self._progress = 1.0  
+        self.setMinimumSize(400, 260)
+
+    # --- DEFINIÇÃO DA PROPRIEDADE DE ANIMAÇÃO ---
+    @Property(float)
+    def progress(self):
+        return self._progress
+
+    @progress.setter
+    def progress(self, value):
+        self._progress = value
+        self.update()  # Redesenha o gráfico a cada micro-passo da animação
 
     def atulizar_dados(self, dados_novos):
         self.dados = dados_novos
-        self.update()
+        
+        # Cria e dispara a animação sempre que novos dados chegam
+        self.animacao = QPropertyAnimation(self, b"progress")
+        self.animacao.setDuration(800)  # Duração de 800ms
+        self.animacao.setStartValue(0.0)
+        self.animacao.setEndValue(1.0)
+        # Curva de aceleração: começa rápido e desacelera suavemente no final
+        self.animacao.setEasingCurve(QEasingCurve.Type.OutCubic) 
+        self.animacao.start()
 
     def paintEvent(self, event):
+        # Aquele mesmo código de fundo de card que você já tem...
         QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Regular.ttf")
         QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
-
+        
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-
         rect = self.rect()
         card_rect = rect.adjusted(1, 1, -1, -1)
         tema = self.tema
-
+        
         # Fundo do Card com cantos arredondados e borda sutil
         painter.setPen(QPen(QColor(0, 0, 0, 0), 1))
         painter.setBrush(QBrush(tema.FUNDO_PRINCIPAL))
@@ -43,20 +63,16 @@ class BaseGrafico(QWidget):
         # Título do Card
         if self.titulo:
             caixa_label = QRectF(1, 0, rect.width() - 2, 28)
-
-            #metade da altura da caixa pra poder fazer a metade de baixo sem arredondar
             metade_label = QRectF(1, 14, rect.width() - 2, 16)
             painter.setBrush(QBrush(tema.FUNDO_CARD))
             painter.drawRoundedRect(caixa_label, arred, arred)
-
             painter.fillRect(metade_label, tema.FUNDO_CARD)
-
-            fonte_titulo = QFont(self.fonte, 12, QFont.Weight.Normal)
+            
+            fonte_titulo = QFont(self.fonte, 10, QFont.Weight.Normal)
             painter.setFont(fonte_titulo)
             painter.setPen(tema.TEXTO_PRINCIPAL)
             painter.drawText(caixa_label, Qt.AlignmentFlag.AlignCenter, self.titulo)
-
-        # Encerra o QPainter para evitar travamentos de concorrência na classe filha
+            
         painter.end()
 
     def calcular_max_val_dinamico(self, valores: list) -> float:
@@ -156,7 +172,11 @@ class LinhaDoTempo(BaseGrafico):
         points = []
         for i, (mes, val) in enumerate(self.dados):
             x = margin_left + i * step_x
-            y = y_baseline - ((val - min_val) / (max_val - min_val)) * plot_height
+            
+            # MULTIPLICA A ALTURA PELO PROGRESSO (self.progress)
+            altura = ((val - min_val) / (max_val - min_val)) * plot_height
+            y = y_baseline - (altura * self.progress)
+            
             points.append((x, y, mes, val))
         
         #bolinhas nos pontos
@@ -302,7 +322,10 @@ class BarrasH(BaseGrafico):
 
         for i, (categoria, val) in enumerate(self.dados):
             y = margin_top + (i * (altura_barra + espaco_entre_barras))
-            largura = ((val - min_val) / (max_val - min_val)) * plot_width
+            
+            # MULTIPLICA A LARGURA PELO PROGRESSO (self.progress)
+            largura_total = ((val - min_val) / (max_val - min_val)) * plot_width
+            largura = largura_total * self.progress
 
             # 1. Rótulo Eixo Y com Quebra de Linha Inteligente
             painter.setFont(font_y_labels)
@@ -438,7 +461,11 @@ class BarrasV(BaseGrafico):
 
         for i, (categoria, val) in enumerate(self.dados):
             x = offset_x + i * (largura_barra + espaco_entre_barras)
-            y_topo = y_baseline - ((val - min_val) / (max_val - min_val)) * plot_height
+            
+            # CÁLCULO ANIMADO DA ALTURA (self.progress)
+            altura_total = ((val - min_val) / (max_val - min_val)) * plot_height
+            altura_barra_atual = altura_total * self.progress
+            y_topo = y_baseline - altura_barra_atual
             altura_barra = y_baseline - y_topo
 
             # 1. Gradiente Vertical da Barra (Verde Claro no topo, Escuro na base)
