@@ -12,7 +12,7 @@ class BaseGrafico(QWidget):
     def __init__(self, parent=None, dados=None, titulo=""):
         super().__init__(parent)
         self.settings = QSettings("TCC", "Plotter")
-        self.tema = TemaEscuro() if str(self.settings.value("tema", "escuro")).lower() == "escuro" else TemaClaro()
+        self.tema = TemaEscuro() if str(self.settings.value("theme", "dark")).lower() == "dark" else TemaClaro()
         self.titulo = titulo
         self.fonte = "Poppins"
         self.dados = dados or []
@@ -563,3 +563,126 @@ class CardKPI(BaseGrafico):
         painter.drawText(caixa_valor, Qt.AlignmentFlag.AlignCenter, str(self.texto_kpi))
         
         painter.end()
+
+class Pizza(BaseGrafico):
+
+    def __init__(self, parent=None, dados=None, titulo=None):
+        super().__init__(parent, dados, titulo)
+        # Um pouco mais largo que os KPIs para acomodar a pizza à esquerda e a legenda à direita
+        self.setMinimumSize(500, 320)
+        self.resize(500, 320)
+
+    def paintEvent(self, event):
+        # 1. Pinta o card escuro com bordas arredondadas e o título (Herdado do BaseGrafico)
+        super().paintEvent(event)
+
+        if not self.dados:
+            return
+
+        tema = self.tema
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        rect = self.rect()
+        fonte_principal = self.fonte
+
+        # --- ÁREA DE DESENHO DO CARD ---
+        margin_top = 65
+        margin_bottom = 30
+        margin_left = 30
+        margin_right = 200  # Espaço reservado para a legenda vertical à direita
+
+        plot_width = rect.width() - margin_left - margin_right
+        plot_height = rect.height() - margin_top - margin_bottom
+        
+        # Garante que a pizza seja um círculo perfeito utilizando o menor lado disponível
+        pie_size = min(plot_width, plot_height)
+        
+        # Centraliza o círculo no espaço restante
+        x_offset = margin_left + (plot_width - pie_size) / 2
+        y_offset = margin_top + (plot_height - pie_size) / 2
+        pie_rect = QRectF(x_offset, y_offset, pie_size, pie_size)
+
+        total = sum(val for _, val in self.dados)
+        if total <= 0:
+            painter.end()
+            return
+
+        # --- ANIMAÇÃO DE DESENROLAR (SWEEP) ---
+        # self.progress vai de 0.0 a 1.0. 
+        # No Qt, 1 grau = 16 unidades de ângulo. 360 graus = 360 * 16.
+        max_angle_total = int(360 * 16 * self.progress)
+        
+        start_angle = 90 * 16  # Começa no topo exato (12 horas)
+        current_drawn = 0
+
+        # --- GERAÇÃO DA PALETA DINÂMICA ---
+        base_color = tema.DESTAQUE_PRINCIPAL
+        h, s, l, a = base_color.getHsl()
+
+        # Configurações de Legenda
+        legend_x = pie_rect.right() + 40
+        legend_y_start = margin_top + 15
+        font_legend = QFont(fonte_principal, 9)
+        font_legend_bold = QFont(fonte_principal, 9, QFont.Weight.Bold)
+
+        for i, (categoria, val) in enumerate(self.dados):
+            # 1. Cor Dinâmica: Desloca a matiz (Hue) em 18 graus e escurece a luminosidade gradativamente
+            novo_h = (h - i * 18) % 360
+            novo_l = max(30, l - (i * 8))  # Limite máximo de escurecimento para não ficar preto
+            cor_fatia = QColor.fromHsl(novo_h, s, novo_l, a)
+
+            # 2. Cálculo do Ângulo da Fatia
+            # Em Qt, ângulos negativos giram no sentido horário (comum em Dashboards)
+            span_angle_abs = int((val / total) * 360 * 16)
+
+            # Se a fatia ultrapassar o limite atual da animação, ela é cortada na ponta
+            if current_drawn + span_angle_abs > max_angle_total:
+                span_angle_abs = max_angle_total - current_drawn
+            
+            span_angle = -span_angle_abs
+
+            # 3. Desenho da Fatia
+            if span_angle_abs > 0:
+                # Usa a cor de fundo do card como borda para criar um "gap" visível entre as fatias
+                painter.setPen(QPen(tema.FUNDO_CARD, 2.5)) 
+                painter.setBrush(QBrush(cor_fatia))
+                painter.drawPie(pie_rect, start_angle, span_angle)
+
+            start_angle += span_angle
+            current_drawn += span_angle_abs
+
+            # 4. Desenho da Legenda (Efeito de Fade-In após 30% da animação)
+            if self.progress > 0.3:
+                opacity = min(1.0, (self.progress - 0.3) * 1.5)
+                painter.setOpacity(opacity)
+
+                ly = legend_y_start + i * 28
+
+                # Quadrado colorido da legenda
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QBrush(cor_fatia))
+                painter.drawRoundedRect(legend_x, ly, 12, 12, 3, 3)
+
+                # Nome da Categoria (Truncado se for muito extenso)
+                painter.setPen(tema.TEXTO_PRINCIPAL)
+                painter.setFont(font_legend)
+                nome_cat = str(categoria)
+                if len(nome_cat) > 16:
+                    nome_cat = nome_cat[:14] + "..."
+                painter.drawText(QRectF(legend_x + 20, ly, 100, 15), Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, nome_cat)
+
+                # Porcentagem em Negrito (ex: 45.2%)
+                painter.setFont(font_legend_bold)
+                percent = (val / total) * 100
+                val_str = f"{percent:.1f}%"
+                painter.drawText(QRectF(legend_x + 120, ly, 50, 15), Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter, val_str)
+
+                painter.setOpacity(1.0) # Restaura opacidade original
+
+            # Quebra o laço se já atingiu o máximo do ângulo animado no quadro atual
+            if current_drawn >= max_angle_total:
+                break
+
+        painter.end()
+
