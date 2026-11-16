@@ -7,6 +7,7 @@ class TemaEscuro:
     """
     FUNDO_PRINCIPAL = QColor("#1A1C2A")
     FUNDO_CARD = QColor("#070C27")
+    FUNDO_DROPDOWN = QColor("#161724")
 
     DESTAQUE_PRINCIPAL = QColor("#62F59F")  
     DESTAQUE_SECUNDARIO = QColor("#398F5D")  
@@ -24,7 +25,8 @@ class TemaClaro:
 
     FUNDO_PRINCIPAL = QColor("#D8DCE5")
     FUNDO_CARD = QColor("#A7AFC2")
-    
+    FUNDO_DROPDOWN = QColor("#C6CEE0")
+
     DESTAQUE_PRINCIPAL = QColor("#46538E")  
     DESTAQUE_SECUNDARIO = QColor("#2F3562")
 

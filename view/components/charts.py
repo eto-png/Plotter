@@ -5,6 +5,8 @@ from PySide6.QtCore import Qt, QRectF, QSettings, Property, QPropertyAnimation, 
 from PySide6.QtGui import QPainter, QColor, QPen, QBrush, QLinearGradient, QFont, QPainterPath, QFontDatabase, QFontMetrics
 
 from view.components.colors import TemaEscuro, TemaClaro
+from view.components.interactives import DropdownMenu
+
 
 from config.paths import FONTS_DIR
 
@@ -702,3 +704,39 @@ class Pizza(BaseGrafico):
 
         painter.end()
 
+class CardFiltro(BaseGrafico):
+    """
+    Card estilizado dedicado a exibir um filtro dropdown.
+    """
+    def __init__(self, parent=None, dados=None, titulo="Filtro: Mês"):
+        super().__init__(parent, dados, titulo)
+        
+        # Tamanho adequado para o card da imagem
+        self.setMinimumSize(250, 110)
+        self.resize(260, 120)
+        
+        self.btn_filtro = DropdownMenu(self)
+
+    def popular_filtro(self, meses_disponiveis: list):
+        self.btn_filtro.adicionar_opcoes(meses_disponiveis)
+        
+    def conectar_acao_filtro(self, funcao_callback):
+        self.btn_filtro.selecao_alterada.connect(funcao_callback)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        
+        # A barra de título do BaseGrafico geralmente tem uns 28 a 30px
+        altura_titulo = 30
+        espaco_livre_altura = self.height() - altura_titulo
+        
+        # Centraliza exatamente no meio do espaço livre inferior
+        x_center = (self.width() - self.btn_filtro.width()) // 2
+        y_center = altura_titulo + ((espaco_livre_altura - self.btn_filtro.height()) // 2)
+        
+        self.btn_filtro.move(x_center, y_center)
+        
+    def paintEvent(self, event):
+        # Apenas desenha o fundo escuro, os cantos e o título do BaseGrafico.
+        # Não precisamos desenhar mais nada, pois o botão sobreposto cuida da interação.
+        super().paintEvent(event)
