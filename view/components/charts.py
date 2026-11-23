@@ -180,6 +180,17 @@ class LinhaDoTempo(BaseGrafico):
             y = y_baseline - (altura * self.progress)
             
             points.append((x, y, mes, val))
+
+        if not points:
+            painter.setFont(QFont(fonte_principal, 10))
+            painter.setPen(tema.TEXTO_SECUNDARIO)
+            painter.drawText(
+                QRectF(margin_left, margin_top, plot_width, plot_height),
+                Qt.AlignmentFlag.AlignCenter,
+                "Nenhum dado encontrado para os filtros selecionados"
+            )
+            painter.end()
+            return
         
         #bolinhas nos pontos
         painter.setBrush(QBrush(tema.DESTAQUE_PRINCIPAL))
@@ -706,37 +717,40 @@ class Pizza(BaseGrafico):
 
 class CardFiltro(BaseGrafico):
     """
-    Card estilizado dedicado a exibir um filtro dropdown.
+    Card estilizado dedicado a exibir um filtro dropdown genérico
+    (Mês, Categoria, Produto, Vendedor, Localidade).
     """
-    def __init__(self, parent=None, dados=None, titulo="Filtro: Mês"):
+    def __init__(self, parent=None, dados=None, titulo="Filtro: Mês", chave_filtro: str = "mes"):
         super().__init__(parent, dados, titulo)
-        
-        # Tamanho adequado para o card da imagem
+        self.chave_filtro = chave_filtro
+
         self.setMinimumSize(250, 110)
         self.resize(260, 120)
-        
+
         self.btn_filtro = DropdownMenu(self)
 
-    def popular_filtro(self, meses_disponiveis: list):
-        self.btn_filtro.adicionar_opcoes(meses_disponiveis)
-        
+    def popular_filtro(self, lista_opcoes: list[str], manter_selecao: list[str] | None = None):
+        """Popula ou atualiza as opções do dropdown preservando seleções no cascateamento."""
+        self.btn_filtro.adicionar_opcoes(lista_opcoes, manter_selecao=manter_selecao)
+
+    def obter_selecionados(self) -> list[str]:
+        """Retorna as opções atualmente selecionadas neste card."""
+        return self.btn_filtro.obter_selecionados()
+
     def conectar_acao_filtro(self, funcao_callback):
+        """Conecta o sinal de alteração do dropdown ao handler do Controller."""
         self.btn_filtro.selecao_alterada.connect(funcao_callback)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        
-        # A barra de título do BaseGrafico geralmente tem uns 28 a 30px
+
         altura_titulo = 30
         espaco_livre_altura = self.height() - altura_titulo
-        
-        # Centraliza exatamente no meio do espaço livre inferior
+
         x_center = (self.width() - self.btn_filtro.width()) // 2
         y_center = altura_titulo + ((espaco_livre_altura - self.btn_filtro.height()) // 2)
-        
+
         self.btn_filtro.move(x_center, y_center)
-        
+
     def paintEvent(self, event):
-        # Apenas desenha o fundo escuro, os cantos e o título do BaseGrafico.
-        # Não precisamos desenhar mais nada, pois o botão sobreposto cuida da interação.
         super().paintEvent(event)
