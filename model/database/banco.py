@@ -130,7 +130,7 @@ class Banco:
                 cd_produto INTEGER,
                 PRIMARY KEY (cd_categoria, cd_produto),
                 FOREIGN KEY (cd_categoria) REFERENCES categoria(cd_categoria),
-                FOREIGN KEY (produto_cd_produto) REFERENCES produto(cd_produto)
+                FOREIGN KEY (cd_produto) REFERENCES produto(cd_produto)
             )
         ''')
 
@@ -160,7 +160,7 @@ class BancoOperacoes(Banco):
             self.connection.rollback()
             return None
 
-    def executar_select(self, sql: str, parametros: tuple = None):
+    def executar_select(self, sql: str, parametros: list | tuple = None):
         try:
             cursor = self.connection.cursor()
             if parametros:
@@ -311,6 +311,21 @@ class BancoOperacoes(Banco):
             except sqlite3.Error as e:
                 print(f"Erro ao buscar vendedor: {e}")
                 return None
+
+    def pegar_categoria(self, nm_categoria: str):
+                try:
+                    cursor = self.connection.cursor()
+                    cursor.execute("SELECT * FROM categoria WHERE nm_categoria = ?", (nm_categoria,))
+                    row = cursor.fetchone()
+                    if row:
+                        return {
+                            "cd_categoria": row[0],
+                            "nm_categoria": row[1]
+                        }
+                    return None
+                except sqlite3.Error as e:
+                    print(f"Erro ao buscar categoria: {e}")
+                    return None
 
     def prox_cd_venda(self):
         try:

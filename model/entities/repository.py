@@ -139,7 +139,7 @@ class GenericDatabaseRepository:
 
             cd_venda = self.banco.prox_cd_venda() # pega o codigo de venda que será inserido
 
-            cd_categoria = self.banco.pegar_produto(nm_categoria)["cd_categoria"]
+            cd_categoria = self.banco.pegar_categoria(nm_categoria)["cd_categoria"]
 
             cd_localidade = row.get(col_localidade, None)
 
