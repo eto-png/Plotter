@@ -69,6 +69,7 @@ class GenericDatabaseRepository:
         col_localidade = None
         col_vendedor = None
         col_forma_pagamento = None
+        col_categoria = None
 
         for coluna, tabela in mapa.items():
             match tabela:
@@ -80,6 +81,8 @@ class GenericDatabaseRepository:
                     col_vendedor = coluna
                 case "forma_pagamento":
                     col_forma_pagamento = coluna
+                case "categoria":
+                    col_categoria = coluna
 
         #venda
         col_dt_venda = None
@@ -126,9 +129,17 @@ class GenericDatabaseRepository:
                 print(f"Produto não encontrado na linha {index + 1}. Pulando...")
                 continue
 
+            nm_categoria = row.get(col_categoria, None)
+            if nm_categoria is None or pd.isna(nm_categoria): 
+                print(f"Categoria não encontrada na linha {index + 1}. Pulando...")
+                continue
+
             # print("Pegando o código do produto:", nm_produto)
             cd_produto = self.banco.pegar_produto(nm_produto)["cd_produto"]
+
             cd_venda = self.banco.prox_cd_venda() # pega o codigo de venda que será inserido
+
+            cd_categoria = self.banco.pegar_produto(nm_categoria)["cd_categoria"]
 
             cd_localidade = row.get(col_localidade, None)
 
@@ -154,6 +165,9 @@ class GenericDatabaseRepository:
             pc_desconto_unitario = row.get(col_desconto_unitario, None) 
 
             self.banco.inserir_lista_produtos(lista_produto[0], lista_produto[1], qt_produto, vl_unitario, pc_desconto_unitario)
+
+            lista_categoria = (cd_categoria, cd_produto)
+            self.banco.inserir_lista_categoria(lista_categoria[0], lista_categoria[1])
 
         self.banco.desconectar()
         

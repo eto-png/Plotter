@@ -126,10 +126,10 @@ class Banco:
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS lista_categoria (
-                categoria_cd_categoria INTEGER,
-                produto_cd_produto INTEGER,
-                PRIMARY KEY (categoria_cd_categoria, produto_cd_produto),
-                FOREIGN KEY (categoria_cd_categoria) REFERENCES categoria(cd_categoria),
+                cd_categoria INTEGER,
+                cd_produto INTEGER,
+                PRIMARY KEY (cd_categoria, cd_produto),
+                FOREIGN KEY (cd_categoria) REFERENCES categoria(cd_categoria),
                 FOREIGN KEY (produto_cd_produto) REFERENCES produto(cd_produto)
             )
         ''')
@@ -231,10 +231,10 @@ class BancoOperacoes(Banco):
         return self._executar_insert(sql, (cd_venda, cd_produto, qt_produto, vl_unitario, 
                                            pc_desconto_unitario))
 
-    def inserir_lista_categoria(self, categoria_cd_categoria: int = 0, produto_cd_produto: int = 0):
-        sql = '''INSERT INTO lista_categoria (categoria_cd_categoria, produto_cd_produto) 
+    def inserir_lista_categoria(self, cd_categoria: int = 0, cd_produto: int = 0):
+        sql = '''INSERT INTO lista_categoria (cd_categoria, cd_produto) 
                  VALUES (?, ?)'''
-        return self._executar_insert(sql, (categoria_cd_categoria, produto_cd_produto))
+        return self._executar_insert(sql, (cd_categoria, cd_produto))
 
     # =========================================================
     # 4. SELECTS NECESSÁRIOS PARA VENDA
