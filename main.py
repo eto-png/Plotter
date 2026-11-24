@@ -17,12 +17,16 @@ from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
 class Window(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+        self.setObjectName("mainWindow")
 
         #Instancia o QSettings
         self.settings = QtCore.QSettings("TCC", "Plotter")
 
         #Cria o stack de paginas
         self.stack = QtWidgets.QStackedWidget()
+        self.stack.setSizePolicy(
+            QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Ignored
+        )
         #Instancia as outras telas
         self.homePage = Home()
         self.settingsPage = Settings()
@@ -50,6 +54,7 @@ class Window(QtWidgets.QWidget):
         self.btnMenu.setObjectName("btnMenu")
         self.btnMenu.setFixedSize(50, 45)
         self.btnMenu.move(10, 54)
+        self.btnMenu.setCursor(QtCore.Qt.PointingHandCursor)
 
         #Instancia o menu lateral
         self.sidebar = Sidebar(self)
@@ -73,11 +78,6 @@ class Window(QtWidgets.QWidget):
         #Empurra o elemento pra camada mais alta. Como o sidebar e o botão menu são elementos flutuantes (não estão em um layout), é necessario empurra-los para frente
         self.sidebar.raise_()
         self.btnMenu.raise_()
-
-        #Faz com que o cursor fique com o dedinho nos botões
-        buttons = [self.btnMenu, self.sidebar.btnCloseSidebar, self.sidebar.btnConfig, self.sidebar.btnHistory]
-        for btn in buttons:
-            btn.setCursor(QtCore.Qt.PointingHandCursor)
 
         #Recebe o sinal do arquivo "settings" e conecta à função de mundaça de tema
         self.settingsPage.theme_changed.connect(self.apply_theme)
@@ -130,7 +130,7 @@ class Window(QtWidgets.QWidget):
 
     def on_sidebar_finished(self, abrir: bool):
         if not abrir:
-            if self.stack.currentIndex() != 1:
+            if self.stack.currentIndex() == 0:  # Só reexibe o btnMenu se estiver na Home
                 self.btnMenu.show()
                 self.btnMenu.raise_()
 
@@ -138,12 +138,23 @@ class Window(QtWidgets.QWidget):
     def change_screen(self, indice: int):
         self.stack.setCurrentIndex(indice)
 
-        if indice in (1, 2):
-            self.sidebar.hide()
-            self.btnMenu.hide()
-        else:
+        if indice == 0:  #Home
+            self.sidebar.set_mode("home")
+            self.stack.setContentsMargins(0, 0, 0, 0)
             self.btnMenu.show()
             self.btnMenu.raise_()
+
+        elif indice == 3:  #Dashboard
+            self.btnMenu.hide()
+            self.sidebar.set_mode("dashboard")
+            self.sidebar.setGeometry(0, 44, 225, self.height() - 44)
+            #Empurra o QStackedWidget 240px para a direita para a sidebar não cobrir o dashboard
+            self.stack.setContentsMargins(225, 0, 0, 0)
+
+        else:  #Settings ou Loading
+            self.sidebar.hide()
+            self.btnMenu.hide()
+            self.stack.setContentsMargins(0, 0, 0, 0)
 
     #Função para mudar o tema do aplicativo
     def apply_theme(self, theme: str):
@@ -168,6 +179,10 @@ class Window(QtWidgets.QWidget):
         if hasattr(self, "settingsPage"):
             self.settingsPage.sync_theme_buttons(theme)
 
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
     #Funções para alterar o idioma do aplicativo
     def load_initial_language(self):
         saved_lang = self.settings.value("language", "pt_BR")
@@ -178,13 +193,14 @@ class Window(QtWidgets.QWidget):
         self.apply_language(lang_code)
 
     def apply_language(self, lang_code: str):
+        self.sidebar.retranslate(lang_code)
         self.settingsPage.retranslate(lang_code)
         self.homePage.retranslate(lang_code)
         self.loadingPage.retranslate(lang_code)
 
         texts = languages.get(lang_code, languages["pt_BR"])
-        self.sidebar.btnHistory.setText(texts["menu_dashboard"])
-        self.sidebar.btnConfig.setText(texts["menu_settings"])
+        #self.sidebar.lblHistory.setText(texts["menu_dashboard"])
+        #self.sidebar.btnConfig.setText(texts["menu_settings"])
 
     def start_loading(self, file_path: str):
         self.change_screen(2)

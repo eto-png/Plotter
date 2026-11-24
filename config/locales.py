@@ -4,6 +4,13 @@ languages = {
     "menu_dashboard": "Outros dashboards",
     "menu_settings": "Configurações",
 
+    #Configurações sidebar dashboard
+    "menu_newdash": "Novo Dashboard",
+    "menu_datadash": "Dados desse Dashboard",
+    "menu_export": "Exportar",
+    "menu_pdf": "Exportar como .PDF",
+    "menu_jpg": "Exportar como .JPG",
+
     #Configurações da home
     "home_title": "Bem vindo ao Plotter!",
     "home_txt": "Arraste sua planilha de vendas aqui ou clique\n no botão para fazer o upload",
@@ -58,6 +65,13 @@ languages = {
       #Configurações globais
       "menu_dashboard": "Other dashboards",
       "menu_settings": "Settings",
+
+      #Configurações sidebar dashboard
+      "menu_newdash": "New Dashboard",
+      "menu_datadash": "Data from this Dashboard",
+      "menu_export": "Export",
+      "menu_pdf": "Export as .PDF",
+      "menu_jpg": "Export as .JPG",
   
       #Configurações da home
       "home_title": "Welcome to the Plotter!",

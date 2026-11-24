@@ -42,8 +42,18 @@ QLabel {
 }
 
 /*Estilos da sidebar*/
-#btnConfig, #btnHistory {
+#scroll, #scroll_content {
+  background-color: transparent;
+}
+
+#btnConfig, #sbOptTitle, #btnDashItem, #btnPDF, #btnJPG {
   text-align: left;
+  background-color: transparent;
+  font-family: 'Poppins', sans-serif;
+  font-size: 14px;
+}
+
+#btnNewDash {
   background-color: transparent;
   font-family: 'Poppins', sans-serif;
   font-size: 14px;
@@ -56,6 +66,28 @@ QLabel {
 
 #btnCloseSidebar:hover {
   background-color: #338C8A8A;
+}
+
+#aiContainer {
+  border-radius: 19px;
+}
+
+#inputAI {
+  background-color: #ACABAB;
+  padding: 3 0 3 5;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 13px;
+}
+
+#btnSendAI {
+  background-color: #ACABAB;
+  border: none;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  qproperty-icon: url("assets/images/send.svg");
+  qproperty-iconSize: 18px 18px;
 }
 
 /*Estilos da home*/

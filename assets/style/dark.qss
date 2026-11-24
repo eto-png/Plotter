@@ -7,17 +7,39 @@
   color: #ACABAB;
 }
 
+#mainWindow {
+  background-color: #222538; 
+}
+
 /*Estilos da sidebar*/
-#btnConfig, #btnHistory {
+#btnConfig, #btnNewDash, #btnDashItem, #btnPDF, #btnJPG {
   color: #FFFFFF;
 }
 
-#btnConfig:hover, #btnHistory:hover {
+#sbOptTitle {
   color: #8C8A8A;
+}
+
+#btnConfig:hover, #btnNewDash:hover, #btnPDF:hover, #btnJPG:hover {
+  color: #8C8A8A;
+}
+
+#btnDashItem:hover {
+  background-color: #2b2d38;
+  padding-left: 10px;
+  border-radius: 5px;
+}
+
+#btnNewDash {
+  qproperty-icon: url("assets/images/plus.svg")
 }
 
 #sidebar {
   background-color: #801A1C2A;
+}
+
+#sidebar[mode="dashboard"]{
+  background-color: #1A1C2A;
 }
 
 #menuRow {
@@ -28,12 +50,24 @@
   qproperty-icon: url("assets/images/x.svg")
 }
 
-#btnHistory {
-  qproperty-icon: url("assets/images/dashboard.svg")
+QLabel#sbOptIcon_history {
+  qproperty-pixmap: url("assets/images/dark/dashboard-dark.svg")
+}
+
+QLabel#sbOptIcon_data {
+  qproperty-pixmap: url("assets/images/dark/database-dark.svg")
+}
+
+QLabel#sbOptIcon_export {
+  qproperty-pixmap: url("assets/images/dark/export-dark.svg")
 }
 
 #btnConfig {
   qproperty-icon: url("assets/images/settings.svg")
+}
+
+QLabel#sbOptIcon_dash {
+  qproperty-pixmap: url("assets/images/dark/dashboard-dark.svg")
 }
 
 /*Estilos da home*/

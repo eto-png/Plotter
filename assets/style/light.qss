@@ -7,33 +7,83 @@
   color: #535353;
 }
 
+#mainWindow {
+  background-color: #eeecec;
+}
+
 /*Estilos da sidebar*/
 #sidebar {
   background-color: #801A1C2A;
+}
+
+#sidebar[mode="dashboard"]{
+  background-color: #1A1C2A;
 }
 
 #menuRow {
   background-color: #80000000;
 }
 
-#btnConfig, #btnHistory {
+#btnConfig, #sbOptTitle {
   color: #000000;
 }
 
-#btnConfig:hover, #btnHistory:hover {
+#btnConfig:hover {
   color: #252525;
+}
+
+#sidebar[mode="dashboard"] #btnConfig, #btnNewDash, #btnDashItem, #btnPDF, #btnJPG {
+  color: #FFFFFF;
+}
+
+#sbOptTitle[mode="dashboard"] {
+  color: #8C8A8A;
+}
+
+#sidebar[mode="dashboard"] #btnConfig:hover, #btnNewDash:hover, #btnPDF:hover, #btnJPG:hover {
+  color: #8C8A8A;
+}
+
+#btnDashItem:hover {
+  background-color: #2b2d38;
+  padding-left: 10px;
+  border-radius: 5px;
+}
+
+#btnNewDash {
+  qproperty-icon: url("assets/images/plus.svg")
 }
 
 #btnCloseSidebar {
   qproperty-icon: url("assets/images/light/x-light.svg")
 }
 
-#btnHistory {
-  qproperty-icon: url("assets/images/light/dashboard-light.svg")
+QLabel#sbOptIcon_history {
+  qproperty-pixmap: url("assets/images/light/dashboard-light.svg")
+}
+
+#sidebar[mode="dashboard"] QLabel#sbOptIcon_history {
+  qproperty-pixmap: url("assets/images/dark/dashboard-dark.svg")
+}
+
+QLabel#sbOptIcon_data {
+  qproperty-pixmap: url("assets/images/dark/database-dark.svg")
+}
+
+QLabel#sbOptIcon_export {
+  qproperty-pixmap: url("assets/images/dark/export-dark.svg")
+}
+
+QLabel#sbOptIcon_dash {
+  qproperty-pixmap: url("assets/images/dark/dashboard-dark.svg")
 }
 
 #btnConfig {
   qproperty-icon: url("assets/images/light/settings-light.svg")
+}
+
+#btnConfig[mode="dashboard"] {
+  qproperty-icon: url("assets/images/settings.svg")
 }
 
 /*Estilos da home*/
