@@ -90,6 +90,9 @@ class Window(QtWidgets.QWidget):
         #Recebe o sinal do "loading" e conecta à função de mudar de pagina
         self.loadingPage.finished.connect(self.change_screen)
 
+        #Criação de uma variável para guardar a tela anterior
+        self.previous_screen = 0
+
         saved_theme = self.settings.value("theme", "dark")
         self.apply_theme(saved_theme)
         self.load_initial_language()
@@ -135,7 +138,13 @@ class Window(QtWidgets.QWidget):
                 self.btnMenu.raise_()
 
     #Função para mudar a tela
-    def change_screen(self, indice: int):
+    def change_screen(self, indice: int = None):
+        if indice is None:
+            indice = self.previous_screen
+
+        if indice == 1: #Settings
+            self.previous_screen = self.stack.currentIndex()
+
         self.stack.setCurrentIndex(indice)
 
         if indice == 0:  #Home
@@ -197,10 +206,6 @@ class Window(QtWidgets.QWidget):
         self.settingsPage.retranslate(lang_code)
         self.homePage.retranslate(lang_code)
         self.loadingPage.retranslate(lang_code)
-
-        texts = languages.get(lang_code, languages["pt_BR"])
-        #self.sidebar.lblHistory.setText(texts["menu_dashboard"])
-        #self.sidebar.btnConfig.setText(texts["menu_settings"])
 
     def start_loading(self, file_path: str):
         self.change_screen(2)

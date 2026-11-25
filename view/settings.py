@@ -10,7 +10,7 @@ class Settings(QtWidgets.QWidget):
     #Cria um sinal
     theme_changed = QtCore.Signal(str)
     language_changed = QtCore.Signal(str)
-    back = QtCore.Signal(int)
+    back = QtCore.Signal()
 
     def __init__(self):
         super().__init__()
@@ -202,7 +202,7 @@ class Settings(QtWidgets.QWidget):
         self.btnBack = QtWidgets.QPushButton()
         self.btnBack.setFixedSize(120, 35)
         self.btnBack.setObjectName("btnBack")
-        self.btnBack.clicked.connect(lambda: self.back.emit(0))
+        self.btnBack.clicked.connect(self.back.emit)
 
 
         layout_container.addLayout(row1) #Adiciona a primeira linha ao layout da div
