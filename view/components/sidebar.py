@@ -89,7 +89,7 @@ class Sidebar(QtWidgets.QFrame):
     self.dash_list = QtWidgets.QVBoxLayout(self.scroll_content)
     self.dash_list.setContentsMargins(0, 0, 0, 0)
 
-    for name in ["Bolo du Bom", "Joalheria Jóia", "Padoca do Pedroca"]:
+    for name in ["Bolo du Bom", "Joalheria Jóia", "Padoca do Pedroca", "ado", "ado", "ado", "ado"]:
       btn_item = QtWidgets.QPushButton(name)
       btn_item.setCursor(QtCore.Qt.PointingHandCursor)
       btn_item.setObjectName("btnDashItem")
@@ -130,7 +130,7 @@ class Sidebar(QtWidgets.QFrame):
     #Campo de texto
     self.inputAI = QtWidgets.QLineEdit()
     self.inputAI.setObjectName("inputAI")
-    self.inputAI.setPlaceholderText("Peça um filtro para a I.A.")
+    #self.inputAI.setPlaceholderText("Peça um filtro para a I.A.")
     self.inputAI.returnPressed.connect(self.send_ai_prompt)
 
     #Botão de enviar
@@ -147,7 +147,7 @@ class Sidebar(QtWidgets.QFrame):
     layout.addWidget(self.btnNewDash)
     layout.addWidget(self.create_divider())
     layout.addLayout(dash_title)
-    layout.addWidget(self.scroll)  # <- Corrigido (adiciona o self.scroll)
+    layout.addWidget(self.scroll)
     layout.addWidget(self.create_divider())
     layout.addLayout(data_title)
     layout.addWidget(self.create_divider())
@@ -157,9 +157,9 @@ class Sidebar(QtWidgets.QFrame):
     layout.addWidget(self.create_divider())
     layout.addWidget(self.btnDashConfig)
     layout.addStretch()
-    layout.addWidget(self.ai_container)  # <-- Caixa da IA
+    layout.addWidget(self.ai_container)
     layout.addWidget(self.create_divider())
-    #layout.addStretch()
+    layout.addSpacing(15)
 
     return widget
 
@@ -233,6 +233,7 @@ class Sidebar(QtWidgets.QFrame):
     self.btnPDF.setText(texts["menu_pdf"])
     self.btnJPG.setText(texts["menu_jpg"])
     self.btnDashConfig.setText(texts["menu_settings"])
+    self.inputAI.setPlaceholderText(texts["menu_placeholder"])
 
   def toggle_menu(self):
     if self.is_fixed:

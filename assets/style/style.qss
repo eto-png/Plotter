@@ -46,6 +46,35 @@ QLabel {
   background-color: transparent;
 }
 
+#sidebar QScrollBar:vertical { /*Fundo do scroll*/
+    border: none;
+    background: transparent;
+    width: 6px;
+    margin: 2px 0px 2px 0px;
+}
+
+#sidebar QScrollBar::handle:vertical { /*Parte arrastável*/
+    background-color: #66969696; /*40% de opacidade (66 da frente)*/
+    min-height: 25px;
+    border-radius: 3px;
+}
+
+#sidebar QScrollBar::handle:vertical:hover {
+    background-color: #99969696; /*60% de opacidade (99 da frente)*/
+}
+
+#sidebar QScrollBar::add-line:vertical, #sidebar QScrollBar::sub-line:vertical {
+    /*Esconde as setinhas de cime e de baixo*/
+    height: 0px;
+    background: none;
+    border: none;
+}
+
+#sidebar QScrollBar::add-page:vertical, #sidebar QScrollBar::sub-page:vertical {
+    /*Remove o fundo quadriculado do handle*/
+    background: none;
+}
+
 #btnConfig, #sbOptTitle, #btnDashItem, #btnPDF, #btnJPG {
   text-align: left;
   background-color: transparent;

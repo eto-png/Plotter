@@ -220,7 +220,7 @@ if __name__ == "__main__":
     QtGui.QFontDatabase.addApplicationFont(f"{FONTS_DIR}/Poppins-Bold.ttf")
 
     widget = Window()
-    widget.resize(1000, 650)
+    widget.resize(1200, 750)
     widget.show()
 
     sys.exit(app.exec())

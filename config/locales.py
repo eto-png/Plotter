@@ -10,6 +10,7 @@ languages = {
     "menu_export": "Exportar",
     "menu_pdf": "Exportar como .PDF",
     "menu_jpg": "Exportar como .JPG",
+    "menu_placeholder": "Peça um filtro para a I.A.",
 
     #Configurações da home
     "home_title": "Bem vindo ao Plotter!",
@@ -72,6 +73,7 @@ languages = {
       "menu_export": "Export",
       "menu_pdf": "Export as .PDF",
       "menu_jpg": "Export as .JPG",
+      "menu_placeholder": "Request a filter for the AI.",
   
       #Configurações da home
       "home_title": "Welcome to the Plotter!",
