@@ -3,9 +3,11 @@ import re
 
 from model.database import banco
 from model.database.banco import BancoOperacoes
+from model.services.profile_classifier import BusinessProfileClassifier
 
 class GenericDatabaseRepository:
     def __init__(self, nome_dashboard):
+        self.nome_dashboard = nome_dashboard
         self.banco = BancoOperacoes(nome_dashboard)
 
     def inserir_extremidades(self, df: pd.DataFrame, mapa: dict):
@@ -61,7 +63,7 @@ class GenericDatabaseRepository:
         
         self.banco.desconectar()
 
-    def inserir_vendas(self, df: pd.DataFrame, mapa : dict):
+    def inserir_vendas(self, df: pd.DataFrame, mapa: dict, salvar_schema: bool = True):
         
         self.banco.conectar()
 
@@ -99,7 +101,7 @@ class GenericDatabaseRepository:
 
         for coluna in df.columns.to_list():
             #venda
-            if coluna.lower() in ["data", "dt_venda", "data_venda"]:
+            if coluna.lower() in ["data", "dt_venda", "data_venda", "datahora", "data_hora"]:
                 col_dt_venda = coluna ; continue
             if coluna.lower() in ["parcelas", "nr_parcelas", "numero_parcelas"]:
                 col_nr_parcelas = coluna ; continue 
@@ -122,52 +124,96 @@ class GenericDatabaseRepository:
 
         print(col_dt_venda)
 
-        for index, row in df.iterrows():
+        try:
+            for index, row in df.iterrows():
 
-            nm_produto = row.get(col_produto, None)
-            if nm_produto is None or pd.isna(nm_produto): 
-                print(f"Produto não encontrado na linha {index + 1}. Pulando...")
-                continue
+                nm_produto = row.get(col_produto, None)
+                if nm_produto is None or pd.isna(nm_produto):
+                    print(f"Produto não encontrado na linha {index + 1}. Pulando...")
+                    continue
 
-            nm_categoria = row.get(col_categoria, None)
-            if nm_categoria is None or pd.isna(nm_categoria): 
-                print(f"Categoria não encontrada na linha {index + 1}. Pulando...")
-                continue
+                produto_info = self.banco.pegar_produto(str(nm_produto))
+                if not produto_info:
+                    continue
+                cd_produto = produto_info["cd_produto"]
 
-            # print("Pegando o código do produto:", nm_produto)
-            cd_produto = self.banco.pegar_produto(nm_produto)["cd_produto"]
+                cd_venda = self.banco.prox_cd_venda() # pega o codigo de venda que será inserido
 
-            cd_venda = self.banco.prox_cd_venda() # pega o codigo de venda que será inserido
+                nm_categoria = row.get(col_categoria, None) if col_categoria else None
+                cd_categoria = None
+                if nm_categoria is not None and not pd.isna(nm_categoria):
+                    cat_info = self.banco.pegar_categoria(str(nm_categoria))
+                    if cat_info:
+                        cd_categoria = cat_info["cd_categoria"]
 
-            cd_categoria = self.banco.pegar_categoria(nm_categoria)["cd_categoria"]
+                cd_localidade = None
+                if col_localidade:
+                    val_loc = row.get(col_localidade, None)
+                    if isinstance(val_loc, (int, float)) and not pd.isna(val_loc):
+                        cd_localidade = int(val_loc)
 
-            cd_localidade = row.get(col_localidade, None)
+                nm_vendedor = row.get(col_vendedor, None) if col_vendedor else None
+                cd_vendedor = None
+                if nm_vendedor is not None and not pd.isna(nm_vendedor):
+                    vend_info = self.banco.pegar_vendedor(str(nm_vendedor))
+                    if vend_info:
+                        cd_vendedor = vend_info["cd_vendedor"]
 
-            nm_vendedor = row.get(col_vendedor, None)
-            # print("Pegando o código do vendedor:", nm_vendedor)
-            cd_vendedor = self.banco.pegar_vendedor(nm_vendedor)["cd_vendedor"]
+                cd_forma_pagamento = None
+                if col_forma_pagamento:
+                    val_fp = row.get(col_forma_pagamento, None)
+                    if isinstance(val_fp, (int, float)) and not pd.isna(val_fp):
+                        cd_forma_pagamento = int(val_fp)
 
-            cd_forma_pagamento = row.get(col_forma_pagamento, None)
-            dt_venda = row.get(col_dt_venda, None).strftime('%Y-%m-%d')
-            nr_parcelas = row.get(col_nr_parcelas, None)
-            vl_total = row.get(col_vl_total, None)
-            vl_desconto = row.get(col_vl_desconto, None)
-            ds_observacao = row.get(col_ds_observacao, None)
-            nm_cliente = row.get(col_nm_cliente, None)
+                dt_raw = row.get(col_dt_venda, None) if col_dt_venda else None
+                if dt_raw is not None and not pd.isna(dt_raw):
+                    dt_venda = dt_raw.strftime('%Y-%m-%d') if hasattr(dt_raw, "strftime") else str(dt_raw)[:10]
+                else:
+                    dt_venda = None
 
-            self.banco.inserir_venda(cd_localidade, cd_vendedor, cd_forma_pagamento, dt_venda, nr_parcelas, vl_total, vl_desconto, ds_observacao, nm_cliente)
+                nr_parcelas = row.get(col_nr_parcelas, None)
+                vl_total = row.get(col_vl_total, None)
+                vl_desconto = row.get(col_vl_desconto, None)
+                ds_observacao = row.get(col_ds_observacao, None)
+                nm_cliente = row.get(col_nm_cliente, None)
 
-            lista_produto = (cd_venda, cd_produto)
-             # (cd_venda, cd_produto)
+                self.banco.inserir_venda(cd_localidade, cd_vendedor, cd_forma_pagamento, dt_venda, nr_parcelas, vl_total, vl_desconto, ds_observacao, nm_cliente)
 
-            qt_produto = row.get(col_qt_produto, None)
-            vl_unitario = row.get(col_vl_unitario, None)
-            pc_desconto_unitario = row.get(col_desconto_unitario, None) 
+                lista_produto = (cd_venda, cd_produto)
 
-            self.banco.inserir_lista_produtos(lista_produto[0], lista_produto[1], qt_produto, vl_unitario, pc_desconto_unitario)
+                qt_produto = row.get(col_qt_produto, None)
+                vl_unitario = row.get(col_vl_unitario, None)
+                pc_desconto_unitario = row.get(col_desconto_unitario, None)
 
-            lista_categoria = (cd_categoria, cd_produto)
-            self.banco.inserir_lista_categoria(lista_categoria[0], lista_categoria[1])
+                self.banco.inserir_lista_produtos(lista_produto[0], lista_produto[1], qt_produto, vl_unitario, pc_desconto_unitario)
 
-        self.banco.desconectar()
+                if cd_categoria is not None:
+                    self.banco.inserir_lista_categoria(cd_categoria, cd_produto)
+        finally:
+            self.banco.desconectar()
+        if salvar_schema:
+            self.classificar_e_salvar_schema(df, mapa)
+
+    def classificar_e_salvar_schema(
+        self,
+        df: pd.DataFrame,
+        mapa: dict,
+        classifier: BusinessProfileClassifier | None = None,
+        nome_exibicao: str | None = None,
+        arquivo_original: str | None = None,
+        normalizacoes: dict | None = None,
+    ) -> str:
+        """Classifica o perfil do negócio e salva o _schema.json completo."""
+        classificador = classifier or BusinessProfileClassifier()
+        perfil, origem_classificacao = classificador.classificar_planilha_com_origem(df, mapa=mapa)
+        classificador.salvar_perfil_schema(
+            nome_dashboard=self.nome_dashboard,
+            perfil=perfil,
+            mapa=mapa,
+            nome_exibicao=nome_exibicao,
+            arquivo_original=arquivo_original,
+            origem_classificacao=origem_classificacao,
+            normalizacoes=normalizacoes,
+        )
+        return perfil
         
