@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -239,14 +240,17 @@ class BusinessProfileClassifier:
         finally:
             conn.close()
 
-    def classificar(self, contexto: dict) -> str:
-        """Classifica o contexto do negócio usando o prompt fixo ChatML."""
+    def classificar_com_origem(self, contexto: dict) -> tuple[str, str]:
+        """
+        Classifica o contexto do negócio usando o prompt fixo ChatML.
+        Retorna (perfil, origem_classificacao) onde origem_classificacao é 'ia' ou 'fallback'.
+        """
         if not self.perfis_disponiveis:
-            return self.FALLBACK_PERFIL
+            return self.FALLBACK_PERFIL, "fallback"
 
         llm = self._get_llm()
         if llm is None:
-            return self.FALLBACK_PERFIL
+            return self.FALLBACK_PERFIL, "fallback"
 
         prompt = f"""<|im_start|>system
 Você é um Especialista em Business Intelligence classificando o perfil comercial de uma planilha de vendas para escolher o melhor template de dashboard.
@@ -297,19 +301,33 @@ Dados resumidos do negócio:
             dados = json.loads(raw_text)
             perfil = dados.get("perfil")
             if isinstance(perfil, str) and perfil in self.perfis_disponiveis:
-                return perfil
+                return perfil, "ia"
 
             print(
                 f"[BusinessProfileClassifier] Perfil inválido '{perfil}'. "
                 f"Usando fallback '{self.FALLBACK_PERFIL}'."
             )
-            return self.FALLBACK_PERFIL
+            return self.FALLBACK_PERFIL, "fallback"
         except (json.JSONDecodeError, Exception) as exc:
             print(
                 f"[BusinessProfileClassifier] Falha na classificação ({exc}). "
                 f"Usando fallback '{self.FALLBACK_PERFIL}'."
             )
-            return self.FALLBACK_PERFIL
+            return self.FALLBACK_PERFIL, "fallback"
+
+    def classificar(self, contexto: dict) -> str:
+        """Classifica o contexto do negócio usando o prompt fixo ChatML."""
+        perfil, _ = self.classificar_com_origem(contexto)
+        return perfil
+
+    def classificar_planilha_com_origem(
+        self,
+        df: pd.DataFrame,
+        mapa: dict | None = None,
+    ) -> tuple[str, str]:
+        """Extrai contexto do DataFrame e retorna (perfil, origem_classificacao)."""
+        contexto = self.extrair_contexto_negocio(df, mapa=mapa)
+        return self.classificar_com_origem(contexto)
 
     def classificar_planilha(
         self,
@@ -317,16 +335,20 @@ Dados resumidos do negócio:
         mapa: dict | None = None,
     ) -> str:
         """Extrai contexto do DataFrame e retorna o ID do perfil classificado."""
-        contexto = self.extrair_contexto_negocio(df, mapa=mapa)
-        return self.classificar(contexto)
+        perfil, _ = self.classificar_planilha_com_origem(df, mapa=mapa)
+        return perfil
 
     @staticmethod
     def salvar_perfil_schema(
         nome_dashboard: str,
         perfil: str,
         mapa: dict | None = None,
+        nome_exibicao: str | None = None,
+        arquivo_original: str | None = None,
+        origem_classificacao: str = "ia",
+        normalizacoes: dict | None = None,
     ) -> Path:
-        """Persiste 'perfil_dashboard' em data/schema/<nome_dashboard>_schema.json."""
+        """Persiste os dados e metadados do dashboard em data/schema/<id>_schema.json."""
         SCHEMA_DIR.mkdir(parents=True, exist_ok=True)
         schema_path = SCHEMA_DIR / f"{nome_dashboard}_schema.json"
 
@@ -339,12 +361,34 @@ Dados resumidos do negócio:
             except (OSError, json.JSONDecodeError):
                 schema_data = {}
 
-        if mapa is not None and "mapeamento" not in schema_data:
-            schema_data["mapeamento"] = mapa
+        agora = datetime.now().astimezone().isoformat(timespec="seconds")
+        metadados_existentes = schema_data.get("metadados") or {}
 
-        schema_data["perfil_dashboard"] = perfil
+        schema_final = {
+            "id": nome_dashboard,
+            "perfil_dashboard": perfil,
+            "metadados": {
+                "nome_exibicao": nome_exibicao
+                or metadados_existentes.get("nome_exibicao")
+                or nome_dashboard,
+                "arquivo_original": arquivo_original
+                or metadados_existentes.get("arquivo_original")
+                or "",
+                "criado_em": metadados_existentes.get("criado_em") or agora,
+                "atualizado_em": agora,
+                "origem_classificacao": origem_classificacao
+                or metadados_existentes.get("origem_classificacao")
+                or "ia",
+            },
+            "mapeamento": mapa if mapa is not None else schema_data.get("mapeamento", {}),
+            "normalizacoes": (
+                normalizacoes
+                if normalizacoes is not None
+                else schema_data.get("normalizacoes", {})
+            ),
+        }
 
         with open(schema_path, "w", encoding="utf-8") as f:
-            json.dump(schema_data, f, ensure_ascii=False, indent=2)
+            json.dump(schema_final, f, ensure_ascii=False, indent=2)
 
         return schema_path
