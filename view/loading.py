@@ -53,7 +53,27 @@ class Loading(QtWidgets.QWidget):
     self.image_status.style().unpolish(self.image_status)
     self.image_status.style().polish(self.image_status)
 
+  def reset(self):
+    #Zera a barra e limpa o estilovermelho caso tenha dado erro
+    self.progress_bar.setValue(0)
+    self.progress_bar.setStyleSheet("")
+
+    #Restaura a imagem padrão de gráfico e o título
+    self.set_status_image("chart")
+    self.retranslate(getattr(self, "current_lang", "pt_BR"))
+
+    #Remove todos os QLabels antigos do layout
+    while self.steps_container.count():
+      item = self.steps_container.takeAt(0)
+      widget = item.widget()
+      if widget:
+        widget.deleteLater()
+
+    #Esvazia a lista
+    self.steps_labels.clear()
+
   def setup_etapas(self, lista_etapas: list):
+    self.reset()
     for texto in lista_etapas:
       lbl = QtWidgets.QLabel(texto)
       lbl.setObjectName("stepLabel")

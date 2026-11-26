@@ -74,6 +74,7 @@ class Sidebar(QtWidgets.QFrame):
     self.btnNewDash.setObjectName("btnNewDash")
     self.btnNewDash.setIcon(QtGui.QIcon())
     self.btnNewDash.setCursor(QtCore.Qt.PointingHandCursor)
+    self.btnNewDash.clicked.connect(lambda: self.change_page.emit(0))
 
     #Categoria "Dashboards"
     dash_title, self.lblDash = self.create_title("dash")

@@ -208,6 +208,7 @@ class Window(QtWidgets.QWidget):
         self.loadingPage.retranslate(lang_code)
 
     def start_loading(self, file_path: str):
+        self.loadingPage.reset()
         self.change_screen(2)
 
         print(f"Iniciando análise de planilha: {file_path}") #Só para testar
