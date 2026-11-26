@@ -1,0 +1,189 @@
+{
+  "id": "atacado_pedidos",
+  "nome": "Atacado, Construção e Pedidos Compostos",
+  "descricao_ia": "Comércios de material de construção, distribuidoras, atacadistas ou fornecedores com pedidos de grande volume, descontos comerciais e entregas distribuídas por cidade ou localidade.",
+  "filtros": [
+    {
+      "chave": "mes",
+      "titulo": "Período",
+      "requer_tabela": null
+    },
+    {
+      "chave": "localidade",
+      "titulo": "Localidade",
+      "requer_tabela": "localidade"
+    },
+    {
+      "chave": "categoria",
+      "titulo": "Categoria",
+      "requer_tabela": "categoria"
+    },
+    {
+      "chave": "produto",
+      "titulo": "Material / Produto",
+      "requer_tabela": null
+    }
+  ],
+  "widgets": [
+    {
+      "id": "kpi_faturamento",
+      "tipo": "CardKPI",
+      "titulo": "Faturamento Líquido",
+      "grid": {
+        "row": 1,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(p.vl_preco * lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "kpi_descontos",
+      "tipo": "CardKPI",
+      "titulo": "Descontos Concedidos",
+      "grid": {
+        "row": 1,
+        "col": 1,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "venda.vl_desconto",
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(v.vl_desconto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "kpi_volume_fallback",
+      "tipo": "CardKPI",
+      "titulo": "Volume Total de Itens",
+      "grid": {
+        "row": 1,
+        "col": 1,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": "kpi_descontos",
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "inteiro"
+    },
+    {
+      "id": "kpi_ticket_pedido",
+      "tipo": "CardKPI",
+      "titulo": "Ticket Médio por Pedido",
+      "grid": {
+        "row": 1,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(p.vl_preco * lp.qt_produto) / NULLIF(COUNT(DISTINCT v.cd_venda), 0), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "grafico_evolucao",
+      "tipo": "LinhaDoTempo",
+      "titulo": "Evolução do Faturamento",
+      "grid": {
+        "row": 2,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 3
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT strftime('%Y-%m', v.dt_venda) AS ym, COALESCE(SUM(p.vl_preco * lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": "ym",
+        "order_by": "ym ASC",
+        "limit": null
+      },
+      "formatador": "ano_mes"
+    },
+    {
+      "id": "grafico_curva_abc",
+      "tipo": "BarrasH",
+      "titulo": "Curva ABC — Materiais de Maior Receita",
+      "grid": {
+        "row": 3,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 2
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT p.nm_produto, SUM(p.vl_preco * lp.qt_produto) AS total FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": "p.nm_produto",
+        "order_by": "total DESC",
+        "limit": 10
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "grafico_localidade",
+      "tipo": "BarrasV",
+      "titulo": "Vendas por Localidade",
+      "grid": {
+        "row": 3,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "localidade",
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT loc.nm_localidade, SUM(p.vl_preco * lp.qt_produto) AS total FROM venda v JOIN localidade loc ON v.cd_localidade = loc.cd_localidade JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": "loc.nm_localidade",
+        "order_by": "total DESC",
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "grafico_categoria_fallback",
+      "tipo": "Pizza",
+      "titulo": "Receita por Categoria",
+      "grid": {
+        "row": 3,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "categoria",
+      "fallback_para": "grafico_localidade",
+      "query": {
+        "query_base": "SELECT c.nm_categoria, SUM(p.vl_preco * lp.qt_produto) AS total FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto JOIN lista_categoria lc ON p.cd_produto = lc.cd_produto JOIN categoria c ON lc.cd_categoria = c.cd_categoria",
+        "group_by": "c.nm_categoria",
+        "order_by": "total DESC",
+        "limit": null
+      },
+      "formatador": "moeda"
+    }
+  ]
+}

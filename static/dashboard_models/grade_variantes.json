@@ -1,0 +1,184 @@
+{
+  "id": "grade_variantes",
+  "nome": "Varejo de Grade, Moda e Margem",
+  "descricao_ia": "Comércios de vestuário, bazar, calçados, acessórios ou óticas onde produtos têm múltiplos atributos de variação (cor, tamanho, marca, condição nova/usada) e controle de custo/margem.",
+  "filtros": [
+    {
+      "chave": "mes",
+      "titulo": "Período",
+      "requer_tabela": null
+    },
+    {
+      "chave": "categoria",
+      "titulo": "Atributos / Marca",
+      "requer_tabela": "categoria"
+    },
+    {
+      "chave": "produto",
+      "titulo": "Tipo de Peça",
+      "requer_tabela": null
+    }
+  ],
+  "widgets": [
+    {
+      "id": "kpi_faturamento",
+      "tipo": "CardKPI",
+      "titulo": "Faturamento Total",
+      "grid": {
+        "row": 1,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(p.vl_preco * lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "kpi_lucro_liquido",
+      "tipo": "CardKPI",
+      "titulo": "Lucro Bruto",
+      "grid": {
+        "row": 1,
+        "col": 1,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "produto.vl_custo",
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(SUM((p.vl_preco - COALESCE(p.vl_custo, 0)) * lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "kpi_ticket_fallback",
+      "tipo": "CardKPI",
+      "titulo": "Ticket Médio",
+      "grid": {
+        "row": 1,
+        "col": 1,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": "kpi_lucro_liquido",
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(p.vl_preco * lp.qt_produto) / NULLIF(COUNT(DISTINCT v.cd_venda), 0), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "kpi_margem",
+      "tipo": "CardKPI",
+      "titulo": "Margem Média",
+      "grid": {
+        "row": 1,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "produto.vl_custo",
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT COALESCE(((SUM(p.vl_preco * lp.qt_produto) - SUM(COALESCE(p.vl_custo, 0) * lp.qt_produto)) / NULLIF(SUM(p.vl_preco * lp.qt_produto), 0)) * 100, 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "percentual"
+    },
+    {
+      "id": "kpi_pecas_fallback",
+      "tipo": "CardKPI",
+      "titulo": "Peças Vendidas",
+      "grid": {
+        "row": 1,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": null,
+      "fallback_para": "kpi_margem",
+      "query": {
+        "query_base": "SELECT COALESCE(SUM(lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": null,
+        "order_by": null,
+        "limit": null
+      },
+      "formatador": "inteiro"
+    },
+    {
+      "id": "grafico_evolucao",
+      "tipo": "LinhaDoTempo",
+      "titulo": "Evolução do Faturamento",
+      "grid": {
+        "row": 2,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 3
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT strftime('%Y-%m', v.dt_venda) AS ym, COALESCE(SUM(p.vl_preco * lp.qt_produto), 0) FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": "ym",
+        "order_by": "ym ASC",
+        "limit": null
+      },
+      "formatador": "ano_mes"
+    },
+    {
+      "id": "grafico_pecas",
+      "tipo": "BarrasH",
+      "titulo": "Receita por Tipo de Peça",
+      "grid": {
+        "row": 3,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 2
+      },
+      "requer_tabela": null,
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT p.nm_produto, SUM(p.vl_preco * lp.qt_produto) AS total FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto",
+        "group_by": "p.nm_produto",
+        "order_by": "total DESC",
+        "limit": 10
+      },
+      "formatador": "moeda"
+    },
+    {
+      "id": "grafico_atributos",
+      "tipo": "Pizza",
+      "titulo": "Mix por Atributo / Marca",
+      "grid": {
+        "row": 3,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1
+      },
+      "requer_tabela": "categoria",
+      "fallback_para": null,
+      "query": {
+        "query_base": "SELECT c.nm_categoria, SUM(lp.qt_produto) AS total FROM venda v JOIN lista_produtos lp ON v.cd_venda = lp.cd_venda JOIN produto p ON lp.cd_produto = p.cd_produto JOIN lista_categoria lc ON p.cd_produto = lc.cd_produto JOIN categoria c ON lc.cd_categoria = c.cd_categoria",
+        "group_by": "c.nm_categoria",
+        "order_by": "total DESC",
+        "limit": null
+      },
+      "formatador": "inteiro"
+    }
+  ]
+}
