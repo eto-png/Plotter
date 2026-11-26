@@ -12,10 +12,17 @@ class QueryBuilder:
         "set": "09", "out": "10", "nov": "11", "dez": "12"
     }
 
-    def __init__(self, query_base: str, group_by: str = "", order_by: str = ""):
+    def __init__(
+        self,
+        query_base: str,
+        group_by: str = "",
+        order_by: str = "",
+        limit: int | None = None,
+    ):
         self.query_base = query_base.strip()
-        self.group_by = group_by.strip()
-        self.order_by = order_by.strip()
+        self.group_by = (group_by or "").strip()
+        self.order_by = (order_by or "").strip()
+        self.limit = limit
         self._condicoes: list[str] = []
         self._parametros: list = []
 
@@ -145,5 +152,8 @@ class QueryBuilder:
 
         if self.order_by:
             partes.append(f"ORDER BY {self.order_by}")
+
+        if self.limit is not None:
+            partes.append(f"LIMIT {int(self.limit)}")
 
         return "\n".join(partes), list(self._parametros)
