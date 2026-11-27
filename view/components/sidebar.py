@@ -221,6 +221,27 @@ class Sidebar(QtWidgets.QFrame):
       self.ai_prompt.emit(texto)
       self.inputAI.clear()
 
+  def set_ai_loading(self, loading: bool):
+    """Bloqueia ou libera o campo de IA enquanto o modelo processa o comando."""
+    self.inputAI.setEnabled(not loading)
+    self.btnSendAI.setEnabled(not loading)
+    if loading:
+      self.inputAI.setPlaceholderText("Interpretando...")
+    else:
+      padrao = getattr(self, "_default_ai_placeholder", "Peça um filtro para a I.A.")
+      self.inputAI.setPlaceholderText(padrao)
+
+  def set_ai_feedback(self, mensagem: str):
+    """Exibe feedback breve no campo de IA e restaura o placeholder padrão depois."""
+    self.inputAI.setToolTip(mensagem)
+    self.inputAI.setPlaceholderText(mensagem)
+    QtCore.QTimer.singleShot(5000, self._restaurar_placeholder_ai)
+
+  def _restaurar_placeholder_ai(self):
+    if self.inputAI.isEnabled():
+      padrao = getattr(self, "_default_ai_placeholder", "Peça um filtro para a I.A.")
+      self.inputAI.setPlaceholderText(padrao)
+
   def retranslate(self, lang_code: str):
     texts = languages.get(lang_code, languages["pt_BR"])
 
@@ -234,7 +255,8 @@ class Sidebar(QtWidgets.QFrame):
     self.btnPDF.setText(texts["menu_pdf"])
     self.btnJPG.setText(texts["menu_jpg"])
     self.btnDashConfig.setText(texts["menu_settings"])
-    self.inputAI.setPlaceholderText(texts["menu_placeholder"])
+    self._default_ai_placeholder = texts["menu_placeholder"]
+    self.inputAI.setPlaceholderText(self._default_ai_placeholder)
 
   def toggle_menu(self):
     if self.is_fixed:

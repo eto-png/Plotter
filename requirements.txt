@@ -4,4 +4,4 @@ PySide6
 pandas
 openpyxl
 darkdetect
-llama-cpp-python
+llama-cpp-python==0.3.36

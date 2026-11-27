@@ -13,11 +13,18 @@ from view.components.sidebar import Sidebar
 from view.components.titlebar import Titlebar
 
 from config.paths import IMAGES_DIR, FONTS_DIR, STYLE_PATH
+from controller.ai_filter_thread import AIFilterThread
+from model.services.ai_filter_interpreter import AIFilterInterpreter
 
 class Window(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.setObjectName("mainWindow")
+
+        # Instância única do interpreter de IA (mantém o modelo em memória entre chamadas)
+        self._ai_interpreter = AIFilterInterpreter()
+        # Referência à thread em andamento (evita garbage collection prematura)
+        self._ai_thread: AIFilterThread | None = None
 
         #Instancia o QSettings
         self.settings = QtCore.QSettings("TCC", "Plotter")
@@ -65,6 +72,7 @@ class Window(QtWidgets.QWidget):
         self.sidebar.animation_started.connect(self.on_sidebar_started)
         self.sidebar.animation_finished.connect(self.on_sidebar_finished)
         self.sidebar.change_page.connect(self.change_screen)
+        self.sidebar.ai_prompt.connect(self.on_ai_prompt)
 
         #Adiciona as paginas ao stack
         self.stack.addWidget(self.homePage)
@@ -219,6 +227,102 @@ class Window(QtWidgets.QWidget):
         self.teste.step_changed.connect(self.loadingPage.on_step_changed)
         self.teste.failed.connect(self.loadingPage.on_failed)
         self.teste.start()
+
+    # -------------------------------------------------------------------------
+    # Interpretação de filtros por IA
+    # -------------------------------------------------------------------------
+
+    def on_ai_prompt(self, texto: str):
+        """
+        Disparado quando o usuário envia um comando para a IA na sidebar.
+        Coleta as opções disponíveis nos filtros do dashboard ativo e
+        delega a interpretação para AIFilterThread (roda no background).
+        """
+        # Só funciona quando o dashboard está ativo e carregado
+        if self.stack.currentIndex() != 3:
+            return
+        if self.dashboardPage.controller is None:
+            return
+
+        controller = self.dashboardPage.controller
+
+        # Monta o dicionário de opções disponíveis em cada filtro
+        opcoes_por_filtro: dict[str, list[str]] = {}
+        for chave, (card_filtro, _) in controller._filtros.items():
+            # obter_selecionados() retorna None (todos) ou lista; precisamos
+            # das opções completas, não das selecionadas. CardFiltro expõe
+            # o dropdown interno com as opções através de obter_todas_opcoes().
+            opcoes = card_filtro.obter_todas_opcoes()
+            if opcoes:
+                opcoes_por_filtro[chave] = opcoes
+
+        if not opcoes_por_filtro:
+            self.sidebar.set_ai_feedback("Nenhum filtro disponível no dashboard.")
+            return
+
+        if self._ai_thread is not None and self._ai_thread.isRunning():
+            return
+
+        # Bloqueia o campo de IA para evitar envios duplos
+        self.sidebar.set_ai_loading(True)
+
+        # Cria e inicia a thread
+        self._ai_thread = AIFilterThread(
+            texto=texto,
+            opcoes_por_filtro=opcoes_por_filtro,
+            interpreter=self._ai_interpreter,
+            parent=self,
+        )
+        self._ai_thread.concluido.connect(self._on_ai_concluido)
+        self._ai_thread.falhou.connect(self._on_ai_falhou)
+        self._ai_thread.start()
+
+    def _on_ai_concluido(self, resultado: dict):
+        """
+        Aplica os filtros interpretados pela IA ao dashboard ativo.
+        'resultado' é um dicionário {chave: lista_de_valores | None}.
+        """
+        self.sidebar.set_ai_loading(False)
+
+        if self.dashboardPage.controller is None:
+            return
+
+        controller = self.dashboardPage.controller
+        filtros = controller._filtros
+        alguma_alteracao = False
+
+        for chave, valores in resultado.items():
+            if chave not in filtros:
+                continue
+            card_filtro, _ = filtros[chave]
+            card_filtro.definir_selecao(valores)
+            alguma_alteracao = True
+
+        if alguma_alteracao:
+            controller.atualizar_por_filtros()
+
+        # Feedback textual resumido
+        if resultado:
+            partes = []
+            for chave, valores in resultado.items():
+                if valores is None:
+                    partes.append(f"{chave}: todos")
+                else:
+                    partes.append(f"{chave}: {', '.join(valores)}")
+            self.sidebar.set_ai_feedback(" | ".join(partes))
+        else:
+            self.sidebar.set_ai_feedback("Nenhum filtro correspondente encontrado.")
+
+    def _on_ai_falhou(self, mensagem: str):
+        """Exibe uma mensagem de erro amigável na sidebar quando a IA falha."""
+        self.sidebar.set_ai_loading(False)
+        print(f"[AIFilter] Erro: {mensagem}")
+        if "não encontrado" in mensagem.lower() or "filenotfounderror" in mensagem.lower():
+            self.sidebar.set_ai_feedback("Modelo de IA não encontrado.")
+        elif "importerror" in mensagem.lower():
+            self.sidebar.set_ai_feedback("llama-cpp-python não instalado.")
+        else:
+            self.sidebar.set_ai_feedback("Não entendi o filtro. Tente novamente.")
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

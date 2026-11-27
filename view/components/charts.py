@@ -737,6 +737,14 @@ class CardFiltro(BaseGrafico):
         """Retorna as opções atualmente selecionadas neste card."""
         return self.btn_filtro.obter_selecionados()
 
+    def obter_todas_opcoes(self) -> list[str]:
+        """Retorna todas as opções disponíveis neste card de filtro."""
+        return self.btn_filtro.obter_todas_opcoes()
+
+    def definir_selecao(self, valores: list[str] | None) -> None:
+        """Define os valores selecionados programaticamente (ex: via IA)."""
+        self.btn_filtro.definir_selecao(valores)
+
     def conectar_acao_filtro(self, funcao_callback):
         """Conecta o sinal de alteração do dropdown ao handler do Controller."""
         self.btn_filtro.selecao_alterada.connect(funcao_callback)

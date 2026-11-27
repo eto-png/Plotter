@@ -219,6 +219,10 @@ class DropdownMenu(QWidget):
 
         return marcados
 
+    def obter_todas_opcoes(self) -> list[str]:
+        """Retorna todas as opções disponíveis no dropdown, independente da seleção."""
+        return list(self.itens_criados.keys())
+
     def _ao_alternar_item(self, item: ItemMenuCustomizado):
         if item.marcado:
             self.desmarcados.discard(item.texto)
@@ -410,6 +414,26 @@ class DropdownMenu(QWidget):
             return None
 
         return marcados
+
+    def obter_todas_opcoes(self) -> list[str]:
+        """Retorna todas as opções disponíveis no dropdown, independente da seleção."""
+        return list(self.itens_criados.keys())
+
+    def definir_selecao(self, valores: list[str] | None) -> None:
+        """Define a seleção do dropdown programaticamente (usado pela IA)."""
+        if valores is None:
+            self.desmarcados.clear()
+        else:
+            selecionados = set(valores)
+            self.desmarcados = {
+                op for op in self.itens_criados.keys() if op not in selecionados
+            }
+
+        for opcao, item in self.itens_criados.items():
+            item.marcado = opcao not in self.desmarcados
+            item.update()
+
+        self._atualizar_rotulo()
 
     def _ao_alternar_item(self, item: ItemMenuCustomizado):
         if item.marcado:
